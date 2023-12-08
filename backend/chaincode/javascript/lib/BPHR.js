@@ -12,13 +12,9 @@ const { Contract } = require("fabric-contract-api");
 // list of users
 var users = {};
 // list of outlets
-let outlets = {};
+var outlets = {};
 // list of donors
-let donors = {};
-// list of rewards
-let rewards = [];
-// list of claimed rewards
-let claims = [];
+var donors = {};
 
 // extending the Fabric Contract
 class BPHR extends Contract {
