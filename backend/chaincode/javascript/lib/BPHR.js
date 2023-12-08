@@ -10,15 +10,11 @@ const { Contract } = require("fabric-contract-api");
 // Creating necessary data structures
 
 // list of users
-let users = [];
+var users = {};
 // list of outlets
-let outlets = [];
-// list of universities
-let universities = [];
-// list of rewards
-let rewards = [];
-// list of claimed rewards
-let claims = [];
+var outlets = {};
+// list of donors
+var donors = {};
 
 // extending the Fabric Contract
 class BPHR extends Contract {
@@ -77,52 +73,91 @@ class BPHR extends Contract {
     // called in RegisterUser function
     async UserExists(userID) {
         // Check if the user is in users array
-        return users.includes(userID);
+        return users.userID;
     }
 
     // OutletExists checks if outlet is already registered
     // called in RegisterUser function
-    async OutletExists(userID) {
+    async OutletExists(outletID) {
         // Check if the outlet is in outlets array
-        return outlets.includes(userID);
+        return outlets.outletID;
     }
 
-    // UniversityExists checks if university is already registered
-    // called in CreateReward function
-    async UniversityExists(userID) {
-        // Check if the university is in universities array
-        return universities.includes(userID);
+    async DonorExists(donorID) {
+        // Check if the donor is in donors array
+        return donors.donorID;
     }
 
     // RegisterUser Function to register users and outlets and sort the IDs into respective arrays based on the userType
     // called in registerUser.js (client)
-    async RegisterUser(ctx, userID, userType) {
+
+    async RegisterUser(ctx, userID, password) {
         try {
             // Check if the user already exists (either as user or as an outlet or as an university)
             const userExists = await this.UserExists(userID);
-            const outletExists = await this.OutletExists(userID);
-            const universityExists = await this.UniversityExists(userID);
 
-            const exists = userExists || outletExists || universityExists;
+            const exists = userExists;
+
+            // Throw a new error if the user/outlet/university already exists
+            if (exists) {
+                throw new Error(`A user with name ${userID} already exists.`);
+            }
+
+            // Register the user
+            users[userID] = password;
+
+            // Return ! of exists (if user does not exist, gives a "true" so the client function can go ahead)
+            return !exists;
+        } catch (error) {
+            return `Error Registering user: ${error.message}`;
+        }
+    }
+
+    // RegisterOutlet function
+
+    async RegisterOutlet(ctx, outletID, password) {
+        try {
+            // Check if the user already exists (either as user or as an outlet or as an university)
+            const outletExists = await this.OutletExists(outletID);
+
+            const exists = outletExists;
+
             // Throw a new error if the user/outlet/university already exists
             if (exists) {
                 throw new Error(
-                    `A User/Outlet/University with name ${userID} already exists.`
+                    `An outlet with name ${outletID} already exists.`
                 );
             }
 
             // Register the user
-            if (userType === "user") {
-                users.push(userID);
-            } else if (userType === "outlet") {
-                outlets.push(userID);
-            } else if (userType === "university") {
-                universities.push(userID);
-            } else {
-                throw new Error(
-                    `Invalid userType: ${userType}. Allowed values are 'user' or 'outlet'.`
-                );
+            outlets[outletID] = password;
+
+            // Return ! of exists (if user does not exist, gives a "true" so the client function can go ahead)
+            return !exists;
+        } catch (error) {
+            return `Error Registering user: ${error.message}`;
+        }
+    }
+
+    // RegisterOutlet function
+
+    async RegisterDonor(ctx, donorID, password) {
+        try {
+            // Check if the user already exists (either as user or as an outlet or as an university)
+            const donorExists = await this.DonorExists(donorID);
+
+            const exists = donorExists;
+
+            // Throw a new error if the user/outlet/university already exists
+            if (exists) {
+                throw new Error(`A donor with name ${donorID} already exists.`);
             }
+
+            // Register the user
+            donors[donorID] = password;
+
+            // Return ! of exists (if user does not exist, gives a "true" so the client function can go ahead)
+
             return !exists;
         } catch (error) {
             return `Error Registering user: ${error.message}`;
