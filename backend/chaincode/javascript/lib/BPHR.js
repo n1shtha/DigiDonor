@@ -83,15 +83,14 @@ class BPHR extends Contract {
         return outlets.outletID;
     }
 
-    // DonorExists checks if donor is already registered
-
     async DonorExists(donorID) {
         // Check if the donor is in donors array
-        return donors.includes(donorID);
+        return donors.donorID;
     }
 
     // RegisterUser Function to register users and outlets and sort the IDs into respective arrays based on the userType
     // called in registerUser.js (client)
+
     async RegisterUser(ctx, userID, password) {
         try {
             // Check if the user already exists (either as user or as an outlet or as an university)
@@ -158,6 +157,7 @@ class BPHR extends Contract {
             donors[donorID] = password;
 
             // Return ! of exists (if user does not exist, gives a "true" so the client function can go ahead)
+
             return !exists;
         } catch (error) {
             return `Error Registering user: ${error.message}`;
