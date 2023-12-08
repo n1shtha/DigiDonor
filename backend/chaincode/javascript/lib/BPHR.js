@@ -10,7 +10,7 @@ const {Contract} = require('fabric-contract-api');
 // Creating necessary data structures
 
 // list of users
-let users = [];
+var users = {};
 // list of outlets
 let outlets = [];
 // list of universities
@@ -74,7 +74,7 @@ class BPHR extends Contract {
     // called in RegisterUser function
     async UserExists(userID) {
         // Check if the user is in users array
-        return users.includes(userID);
+        return users.userID;
     }
 
     // OutletExists checks if outlet is already registered 
@@ -93,30 +93,25 @@ class BPHR extends Contract {
 
     // RegisterUser Function to register users and outlets and sort the IDs into respective arrays based on the userType
     // called in registerUser.js (client)
-    async RegisterUser(ctx, userID, userType) {
+    async RegisterUser(ctx, userID, password) {
         try{
+
         // Check if the user already exists (either as user or as an outlet or as an university)
         const userExists = await this.UserExists(userID);
-        const outletExists = await this.OutletExists(userID);
-        const universityExists = await this.UniversityExists(userID);
         
-        const exists = userExists || outletExists || universityExists;
+        const exists = userExists;
+        
         // Throw a new error if the user/outlet/university already exists
         if (exists) {
             throw new Error(`A User/Outlet/University with name ${userID} already exists.`);
         }
 
         // Register the user
-        if (userType === 'user') {
-            users.push(userID);
-        } else if (userType === 'outlet') {
-            outlets.push(userID);
-        } else if (userType === 'university'){
-            universities.push(userID);
-        }else {
-            throw new Error(`Invalid userType: ${userType}. Allowed values are 'user' or 'outlet'.`);
-        }
+        users[userID] = password;
+
+        // Return ! of exists (if user does not exist, gives a "true" so the client function can go ahead)
         return (!exists);
+
         } catch(error){
             return(`Error Registering user: ${error.message}`);
         }
