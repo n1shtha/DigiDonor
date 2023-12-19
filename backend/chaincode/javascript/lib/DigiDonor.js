@@ -10,48 +10,27 @@ const { Contract } = require("fabric-contract-api");
 // Creating necessary data structures
 
 // list of users
-var users = {};
-// list of outlets
-var outlets = {};
+var students = {};
 // list of donors
 var donors = {};
+// // list of outlets
+// var outlets = {};
 
 // extending the Fabric Contract
-class BPHR extends Contract {
+class DigiDonor extends Contract {
     // initLedger function to set up initial state of the ledger
     // called where? enrollAdmin? new file?
     async initLedger(ctx) {
         try {
             const initialAssets = [
                 {
-                    ID: "asset1",
-                    Owner: "jane",
-                    Date: "12/09/2023",
-                    Reward: "no", // 'no' indicates an asset
-                    Item: "sandwich",
-                    Outlet: "locomoko",
-                    Value: 90,
-                    Verified: "yes",
+                    
                 },
                 {
-                    ID: "asset2",
-                    Owner: "dave",
-                    Date: "13/09/2023",
-                    Reward: "no", // 'no' indicates an asset
-                    Item: "coffee",
-                    Outlet: "fuelzone",
-                    Value: 30,
-                    Verified: "no",
+                    
                 },
                 {
-                    ID: "asset3",
-                    Owner: "chanchal",
-                    Date: "14/09/2023",
-                    Reward: "no", // 'no' indicates an asset
-                    Item: "biscuits",
-                    Outlet: "tuckshop",
-                    Value: 120,
-                    Verified: "yes",
+                    
                 },
             ];
 
@@ -69,42 +48,55 @@ class BPHR extends Contract {
         }
     }
 
-    // UserExists checks if user is already registered
+    // StudentExists checks if student is already registered
     // called in RegisterUser function
-    async UserExists(userID) {
-        // Check if the user is in users array
+    async StudentExists(userID) {
+        // Check if the user is in users dict
         return users.userID;
     }
 
-    // OutletExists checks if outlet is already registered
+    // DonorExists checks if donor is already registered
     // called in RegisterUser function
-    async OutletExists(outletID) {
-        // Check if the outlet is in outlets array
-        return outlets.outletID;
-    }
-
     async DonorExists(donorID) {
-        // Check if the donor is in donors array
+        // Check if the donor is in donors dict
         return donors.donorID;
     }
 
-    // RegisterUser Function to register users and outlets and sort the IDs into respective arrays based on the userType
-    // called in registerUser.js (client)
+    // // OutletExists checks if outlet is already registered
+    // // called in RegisterUser function
+    // async OutletExists(outletID) {
+    //     // Check if the outlet is in outlets array
+    //     return outlets.outletID;
+    // }
 
-    async RegisterUser(ctx, userID, password) {
+    // RegisterUser Function to register users and donors based on userType
+
+    async RegisterUser(ctx, username, password, userType) {
         try {
-            // Check if the user already exists (either as user or as an outlet or as an university)
-            const userExists = await this.UserExists(userID);
+            if (userType === "student"){
+                // Check if the student already exists 
+                const studentExists = await this.StudentExists(username);
 
-            const exists = userExists;
+                if (!studentExists){
+                    // Register the student
+                    students[username] = password;
+                }
+                
+            } else if (userType === 'donor'){
+                // Check if the donor already exists 
+                const donorExists = await this.DonorExists(username);
 
-            // Throw a new error if the user/outlet/university already exists
-            if (exists) {
-                throw new Error(`A user with name ${userID} already exists.`);
+                if (!donorExists){
+                    // Register the student
+                    donors[username] = password;
+                }
             }
+            const exists = studentExists || donorExists;
 
-            // Register the user
-            users[userID] = password;
+            // Throw a new error if the student/donor is already registered
+            if (exists) {
+                throw new Error(`A user of ${userType} type with username ${username} already exists.`);
+            }
 
             // Return ! of exists (if user does not exist, gives a "true" so the client function can go ahead)
             return !exists;
@@ -129,38 +121,13 @@ class BPHR extends Contract {
                 );
             }
 
-            // Register the user
+            // Register the outlet
             outlets[outletID] = password;
 
-            // Return ! of exists (if user does not exist, gives a "true" so the client function can go ahead)
+            // Return ! of exists (if outlet does not exist, gives a "true" so the client function can go ahead)
             return !exists;
         } catch (error) {
-            return `Error Registering user: ${error.message}`;
-        }
-    }
-
-    // RegisterOutlet function
-
-    async RegisterDonor(ctx, donorID, password) {
-        try {
-            // Check if the user already exists (either as user or as an outlet or as an university)
-            const donorExists = await this.DonorExists(donorID);
-
-            const exists = donorExists;
-
-            // Throw a new error if the user/outlet/university already exists
-            if (exists) {
-                throw new Error(`A donor with name ${donorID} already exists.`);
-            }
-
-            // Register the user
-            donors[donorID] = password;
-
-            // Return ! of exists (if user does not exist, gives a "true" so the client function can go ahead)
-
-            return !exists;
-        } catch (error) {
-            return `Error Registering user: ${error.message}`;
+            return `Error Registering outlet: ${error.message}`;
         }
     }
 
@@ -495,4 +462,4 @@ class BPHR extends Contract {
     }
 }
 
-module.exports = BPHR;
+module.exports = DigiDonor;

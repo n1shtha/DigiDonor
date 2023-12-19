@@ -1,11 +1,10 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
-import Login from "./Login";
-import Signup from "./Signup";
-import StudentHome from "./StudentHome";
-import DonorHome from "./DonorHome";
-import Navbar from "./Navbar";
+import Login from "./components/Login";
+import Signup from "./components/Signup";
+import StudentHome from "./components/StudentHome";
+import DonorHome from "./components/DonorHome";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
