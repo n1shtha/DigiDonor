@@ -50,16 +50,16 @@ class DigiDonor extends Contract {
 
     // StudentExists checks if student is already registered
     // called in RegisterUser function
-    async StudentExists(userID) {
+    async StudentExists(ctx, username) {
         // Check if the user is in users dict
-        return users.userID;
+        return students[username];
     }
 
     // DonorExists checks if donor is already registered
     // called in RegisterUser function
-    async DonorExists(donorID) {
+    async DonorExists(ctx, username) {
         // Check if the donor is in donors dict
-        return donors.donorID;
+        return donors[username];
     }
 
     // // OutletExists checks if outlet is already registered
@@ -72,37 +72,36 @@ class DigiDonor extends Contract {
     // RegisterUser Function to register users and donors based on userType
 
     async RegisterUser(ctx, username, password, userType) {
-        try {
-            if (userType === "student"){
-                // Check if the student already exists 
-                const studentExists = await this.StudentExists(username);
+        let userExists;
+        
+        if (userType === "student"){
+            // Check if the student already exists 
+            userExists = await this.StudentExists(ctx, username);
 
-                if (!studentExists){
-                    // Register the student
-                    students[username] = password;
-                }
-                
-            } else if (userType === 'donor'){
-                // Check if the donor already exists 
-                const donorExists = await this.DonorExists(username);
-
-                if (!donorExists){
-                    // Register the student
-                    donors[username] = password;
-                }
+            if (!userExists){
+                // Register the student
+                students[username] = password;
             }
-            const exists = studentExists || donorExists;
+        } else if (userType === 'donor'){
+            // Check if the donor already exists 
+            userExists = await this.DonorExists(ctx, username);
 
-            // Throw a new error if the student/donor is already registered
-            if (exists) {
-                throw new Error(`A user of ${userType} type with username ${username} already exists.`);
+            if (!userExists){
+                // Register the student
+                donors[username] = password;
             }
-
-            // Return ! of exists (if user does not exist, gives a "true" so the client function can go ahead)
-            return !exists;
-        } catch (error) {
-            return `Error Registering user: ${error.message}`;
+        } else {
+            throw new Error('Invalid userType');
         }
+
+        // Throw a new error if the student/donor is already registered
+        if (userExists) {
+            throw new Error(`A user of ${userType} type with username ${username} already exists.`);
+        }
+
+        // Return ! of exists (if user does not exist, gives a "true", so the client function can go ahead)
+        return !userExists;
+        
     }
 
     // RegisterOutlet function
