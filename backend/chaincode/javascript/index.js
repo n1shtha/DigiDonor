@@ -4,7 +4,7 @@
 
 "use strict";
 
-const BPHR = require("./lib/BPHR");
+const DigiDonor = require("./lib/DigiDonor");
 
-module.exports.BPHR = BPHR;
-module.exports.contracts = [BPHR];
+module.exports.DigiDonor = DigiDonor;
+module.exports.contracts = [DigiDonor];

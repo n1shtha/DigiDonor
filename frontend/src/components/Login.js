@@ -14,7 +14,7 @@ function Login() {
       </div>
       <div className="form_container p-5 rounded bg-white ms-4">
         <form>
-          <h3 className="text-center">Sign in</h3>
+          <h3 className="text-center">Login</h3>
           <div className="mb-2">
             <label htmlFor="userID">User ID:</label>
             <input
@@ -42,7 +42,7 @@ function Login() {
             </label>
           </div>
           <div className="d-grid">
-            <button className="btn btn-outline-success">Sign in</button>
+            <button className="btn btn-outline-success">Login</button>
           </div>
           <p className="text-end mt-2">
             <a>New user?</a>

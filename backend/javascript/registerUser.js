@@ -11,15 +11,14 @@ const FabricCAServices = require("fabric-ca-client");
 const fs = require("fs");
 const path = require("path");
 
-// modifying command line arguments allowed
-let userID, userType;
-process.argv.forEach(function (val, index, array) {
-    if (index === 2) userID = val;
-    if (index === 3) userType = val; // 'user', 'university', or 'outlet'
-});
+// // modifying command line arguments allowed
+// let userID, userType;
+// process.argv.forEach(function (val, index, array) {
+//     if (index === 2) userID = val;
+//     if (index === 3) userType = val; // 'user', 'university', or 'outlet'
+// });
 
-async function main() {
-    console.log("============= START : Registering User ===========");
+async function registerUser(username, password, userType) {
     try {
         // load the network configuration
         const ccpPath = path.resolve(
@@ -60,19 +59,6 @@ async function main() {
             console.log("Run the enrollAdmin.js application before retrying");
             return;
         }
-
-        // // Determine affiliation based on userType
-        // let affiliation;
-        // if (userType === 'user') {
-        //     affiliation = 'org1.department1.users';
-        // } else if (userType === 'university') {
-        //     affiliation = 'org1.department1.university';
-        // } else if (userType === 'outlet') {
-        //     affiliation = 'org1.department1.outlets';
-        // } else {
-        //     console.error('Invalid userType. Allowed values: "user", "university", or "outlet"');
-        //     process.exit(1);
-        // }
 
         // build a user object for authenticating with the CA
         const provider = wallet
@@ -116,14 +102,11 @@ async function main() {
         const network = await gateway.getNetwork("mychannel");
 
         // Get the contract from the network.
-        const contract = network.getContract("BPHR");
+        const contract = network.getContract("DigiDonor");
 
         // Register the user such that it reflects in the chaincode
-        const registerUserResponse = await contract.submitTransaction(
-            "RegisterUser",
-            userID,
-            userType
-        );
+        const registerUserResponse = await contract.submitTransaction( "RegisterUser", username, password, userType);
+
         if (registerUserResponse) {
             console.log(
                 `Successfully registered user ${userID} of type ${userType} and imported into the wallet.`
@@ -133,11 +116,11 @@ async function main() {
         }
         // Disconnect from the gateway after executing registration
         await gateway.disconnect();
+
     } catch (error) {
         console.error(`Failed to register user ${userID}: ${error}`);
         process.exit(1);
     }
-    console.log("============= END : Registering User ===========");
 }
 
-main();
+module.exports = registerUser;
