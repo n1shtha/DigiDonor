@@ -1,0 +1,41 @@
+.form_container {
+    width: 30%
+}
+
+.request_container {
+    width: 60%;
+}
+
+.request_card {
+    width: 80%;
+}
+
+.border {
+
+    border-right: 3px solid #dee2e6;
+
+}
+
+.id-field {
+    width: 30%;
+}
+
+form_control1 {
+    width: 30%;
+}
+
+.jumbotron {
+    width: 50%;
+}
+
+@media screen and (max-width: 1000px) {
+    .form_container {
+        width: 45%;
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    .form_container {
+        width: 45%;
+    }
+}
