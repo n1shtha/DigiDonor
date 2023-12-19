@@ -30,7 +30,11 @@ function Signup() {
             setMessage('User registered successfully!');
             setIsRegistered(true);
         } catch (error) {
-            setMessage(error.response.data.error);
+            if (error.response && error.response.data && error.response.data.error) {
+                setMessage(error.response.data.error);
+            } else {
+                setMessage('An unexpected error occurred.');
+            }
         }
     };
 
