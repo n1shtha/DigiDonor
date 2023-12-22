@@ -83,9 +83,43 @@ class DigiDonor extends Contract {
     //     return outlets.outletID;
     // }
 
-    // [TO-DO] LoginUser Function log in users and donors based on values stored in dictionary
 
 
+    // LoginUser Function log in users and donors based on values stored in dictionary
+    
+    async LoginUser(ctx, username, password) {
+        try {
+            const studentExists = await this.StudentExists(username);
+            const donorExists = await this.DonorExists(username);
+
+            if (studentExists) {
+                // Check if login details are correct
+                const studentAuthenticated = students.find(student => student.username === username && student.password === password);
+
+                if (studentAuthenticated) {
+                    console.log("Student authentication successful.");
+                    var userType = studentAuthenticated.userType;
+                    // then we push student dashboard [TO-DO]
+                } else {
+                    console.log("Student authentication failed. Please try again");
+                }   
+            } else if (donorExists) {
+                // Check if login details are correct
+                const donorAuthenticated = donors.find(donor => donor.username === username && donor.password === password);
+
+                if (donorAuthenticated) {
+                    console.log("Donor authentication successful."); 
+                    var userType = donorAuthenticated.userType;
+                    // then we push donor dashboard [TO-DO]
+                } else {
+                    console.log("Donor authentication failed. Please try again");
+                }
+            }
+        } catch (error) {
+            return `Error authenticating user: ${error.message}`;
+        }
+    }
+    
     // RegisterUser Function to register users and donors based on userType
 
     async RegisterUser(ctx, username, password, userType) {
@@ -130,7 +164,7 @@ class DigiDonor extends Contract {
             // Return ! of exists (if user does not exist, gives a "true" so the client function can go ahead)
             return !exists;
         } catch (error) {
-            return `Error Registering user: ${error.message}`;
+            return `Error registering user: ${error.message}`;
         }
     }
 
