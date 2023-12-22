@@ -20,6 +20,7 @@ async function main() {
             __dirname,
             "..",
             "..",
+            "..",
             "test-network",
             "organizations",
             "peerOrganizations",

@@ -41,7 +41,7 @@ async function main() {
     const network = await gateway.getNetwork('mychannel');
 
     // Get the contract from the network.
-    const contract = network.getContract('BPHR');
+    const contract = network.getContract('DigiDonor');
 
     console.log('============= START : Checking Eligibility for Reward for User ===========');
     try {

@@ -25,6 +25,7 @@ async function registerUser(username, password, userType) {
             __dirname,
             "..",
             "..",
+            "..",
             "test-network",
             "organizations",
             "peerOrganizations",
@@ -42,10 +43,10 @@ async function registerUser(username, password, userType) {
         const wallet = await Wallets.newFileSystemWallet(walletPath);
 
         // Check to see if we've already enrolled the user.
-        const userIdentity = await wallet.get(userID);
+        const userIdentity = await wallet.get(username);
         if (userIdentity) {
             console.log(
-                `An identity for the user ${userID} already exists in the wallet`
+                `An identity for the user ${username} already exists in the wallet`
             );
             return;
         }
@@ -70,13 +71,13 @@ async function registerUser(username, password, userType) {
         const secret = await ca.register(
             {
                 // affiliation: affiliation,
-                enrollmentID: userID,
+                enrollmentID: username,
                 role: "client",
             },
             adminUser
         );
         const enrollment = await ca.enroll({
-            enrollmentID: userID,
+            enrollmentID: username,
             enrollmentSecret: secret,
         });
         const x509Identity = {
@@ -94,7 +95,7 @@ async function registerUser(username, password, userType) {
         const gateway = new Gateway();
         await gateway.connect(ccp, {
             wallet,
-            identity: userID,
+            identity: username,
             discovery: { enabled: true, asLocalhost: true },
         });
 
@@ -109,7 +110,7 @@ async function registerUser(username, password, userType) {
 
         if (registerUserResponse) {
             console.log(
-                `Successfully registered user ${userID} of type ${userType} and imported into the wallet.`
+                `Successfully registered user ${username} of type ${userType} and imported into the wallet.`
             );
         } else {
             console.log(registerUserResponse.toString());
@@ -118,7 +119,7 @@ async function registerUser(username, password, userType) {
         await gateway.disconnect();
 
     } catch (error) {
-        console.error(`Failed to register user ${userID}: ${error}`);
+        console.error(`Failed to register user ${username}: ${error}`);
         process.exit(1);
     }
 }

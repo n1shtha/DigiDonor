@@ -2,11 +2,16 @@ const express = require('express');
 const { Gateway, Wallets } = require('fabric-network');
 const path = require('path');
 const fs = require('fs');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 
 const registerUser = require('./javascript/registerUser');
 
 const app = express();
-const PORT = 3001;
+app.use(cors());
+
+const PORT = 8080;
+
 
 app.use(bodyParser.json());
 

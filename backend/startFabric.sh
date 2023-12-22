@@ -14,7 +14,7 @@ CC_SRC_LANGUAGE=${1:-"javascript"}
 CC_SRC_LANGUAGE=`echo "$CC_SRC_LANGUAGE" | tr [:upper:] [:lower:]`
 
 if [ "$CC_SRC_LANGUAGE" = "javascript" ]; then
-	CC_SRC_PATH="../BPHR_Blockchain/chaincode/javascript/"
+	CC_SRC_PATH="../blockchain_final_project/backend/chaincode/javascript/"
 else
 	echo The chaincode language ${CC_SRC_LANGUAGE} is not supported by this script
 	echo Supported chaincode languages are: javascript
@@ -25,16 +25,16 @@ fi
 rm -rf javascript/wallet/*
 
 # launch network; create channel and join peer to channel
-pushd ../test-network
+pushd ../../test-network
 ./network.sh down
 ./network.sh up createChannel -ca -s couchdb
-./network.sh deployCC -ccn BPHR -ccv 1 -cci initLedger -ccl ${CC_SRC_LANGUAGE} -ccp ${CC_SRC_PATH}
+./network.sh deployCC -ccn DigiDonor -ccv 1 -cci initLedger -ccl ${CC_SRC_LANGUAGE} -ccp ${CC_SRC_PATH}
 popd
 
 cat <<EOF
 
 Total setup execution time : $(($(date +%s) - starttime)) secs ...
 
-Next, use the BPHR applications to interact with the deployed BPHR contract.
+Next, use the DigiDonor applications to interact with the deployed DigiDonor contract.
 
 EOF
