@@ -10,9 +10,21 @@ const { Contract } = require("fabric-contract-api");
 // Creating necessary data structures
 
 // list of users
-var students = {};
+var students = [
+    {
+        "username": "",
+        "password": "",
+        "userType": "student"
+    }
+];
 // list of donors
-var donors = {};
+var donors = [
+    {
+        "username": "",
+        "password": "",
+        "userType": "donor"
+    }
+];
 // // list of outlets
 // var outlets = {};
 
@@ -52,14 +64,16 @@ class DigiDonor extends Contract {
     // called in RegisterUser function
     async StudentExists(userID) {
         // Check if the user is in users dict
-        return users.userID;
+        const exists = students.some(student => student.username === userID);
+        return exists;
     }
 
     // DonorExists checks if donor is already registered
     // called in RegisterUser function
     async DonorExists(donorID) {
         // Check if the donor is in donors dict
-        return donors.donorID;
+        const exists = donors.some(donor => donor.username === donorID);
+        return exists;
     }
 
     // // OutletExists checks if outlet is already registered
@@ -68,6 +82,9 @@ class DigiDonor extends Contract {
     //     // Check if the outlet is in outlets array
     //     return outlets.outletID;
     // }
+
+    // [TO-DO] LoginUser Function log in users and donors based on values stored in dictionary
+
 
     // RegisterUser Function to register users and donors based on userType
 
@@ -79,7 +96,13 @@ class DigiDonor extends Contract {
 
                 if (!studentExists){
                     // Register the student
-                    students[username] = password;
+                    const newStudent = {
+                        "username": username,
+                        "password": password,
+                        "userType": userType
+                    };
+
+                    students.push(newStudent);
                 }
                 
             } else if (userType === 'donor'){
@@ -88,7 +111,13 @@ class DigiDonor extends Contract {
 
                 if (!donorExists){
                     // Register the student
-                    donors[username] = password;
+                    const newDonor = {
+                        "username": username,
+                        "password": password,
+                        "userType": userType
+                    };
+
+                    donors.push(newDonor);
                 }
             }
             const exists = studentExists || donorExists;
