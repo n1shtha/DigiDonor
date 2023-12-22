@@ -11,7 +11,14 @@ const FabricCAServices = require("fabric-ca-client");
 const fs = require("fs");
 const path = require("path");
 
-async function registerUser(username, password, userType) {
+// // modifying command line arguments allowed
+// let userID, userType;
+// process.argv.forEach(function (val, index, array) {
+//     if (index === 2) userID = val;
+//     if (index === 3) userType = val; // 'user', 'university', or 'outlet'
+// });
+
+async function registerUser(firstName, lastName, password, userType) {
     try {
         // load the network configuration
         const ccpPath = path.resolve(
@@ -34,6 +41,8 @@ async function registerUser(username, password, userType) {
         // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), "wallet");
         const wallet = await Wallets.newFileSystemWallet(walletPath);
+
+        const username = (firstName + lastName).toLowerCase();
 
         // Check to see if we've already enrolled the user.
         const userIdentity = await wallet.get(username);
@@ -88,7 +97,7 @@ async function registerUser(username, password, userType) {
         const gateway = new Gateway();
         await gateway.connect(ccp, {
             wallet,
-            identity: userID,
+            identity: username,
             discovery: { enabled: true, asLocalhost: true },
         });
 
@@ -113,7 +122,7 @@ async function registerUser(username, password, userType) {
 
     } catch (error) {
         console.error(`Failed to register user ${username}: ${error}`);
-        //process.exit(1);
+        process.exit(1);
     }
 }
 
