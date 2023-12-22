@@ -25,10 +25,11 @@ function Signup() {
         e.preventDefault();
         const { firstName, lastName, password, userType } = formData;
         // const username = `${firstName.toLowerCase()}${lastName.toLowerCase()}`;
-        const username = "testuser";
-        
+        // const username = (firstName.toLowerCase() + " " + lastName.toLowerCase());
+        // const username = formData.firstName + formData.lastName;
+
         try {
-            await axios.post('http://localhost:8080/signup', { username, password, userType });
+            await axios.post('http://localhost:8080/signup', { firstName, lastName, password, userType });
             setMessage('User registered successfully!');
             setIsRegistered(true);
         } catch (error) {
@@ -67,25 +68,25 @@ function Signup() {
                             <form onSubmit={handleSubmit}>
                             <h3 className="text-center">Sign up</h3>
                             <div className="mb-2">
-                                <label htmlFor="fname">First name:</label>
+                                <label htmlFor="firstName">First name:</label>
                                 <input
                                 type="text"
-                                placeholder="Enter first name"
-                                className="form-control"
+                                name="firstName"
                                 defaultValue={formData.firstName}
                                 onChange={handleChange}
-                                name="fname"
+                                placeholder="Enter first name"
+                                className="form-control"
                                 />
                             </div>
                             <div className="mb-2">
-                                <label htmlFor="lname">Last name:</label>
+                                <label htmlFor="lastName">Last name:</label>
                                 <input
                                 type="text"
-                                placeholder="Enter last name"
-                                className="form-control"
+                                name="lastName"
                                 defaultValue={formData.lastName}
                                 onChange={handleChange}
-                                name="lname"
+                                placeholder="Enter last name"
+                                className="form-control"
                                 />
                             </div>
                             <div className="mb-2">

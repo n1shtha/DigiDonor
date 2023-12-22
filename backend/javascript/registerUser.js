@@ -18,7 +18,7 @@ const path = require("path");
 //     if (index === 3) userType = val; // 'user', 'university', or 'outlet'
 // });
 
-async function registerUser(username, password, userType) {
+async function registerUser(firstName, lastName, password, userType) {
     try {
         // load the network configuration
         const ccpPath = path.resolve(
@@ -41,6 +41,8 @@ async function registerUser(username, password, userType) {
         // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), "wallet");
         const wallet = await Wallets.newFileSystemWallet(walletPath);
+
+        const username = (firstName + lastName).toLowerCase();
 
         // Check to see if we've already enrolled the user.
         const userIdentity = await wallet.get(username);
@@ -88,7 +90,7 @@ async function registerUser(username, password, userType) {
             mspId: "Org1MSP",
             type: "X.509",
         };
-        await wallet.put(userID, x509Identity);
+        await wallet.put(username, x509Identity);
         //console.log(`Successfully registered user ${userID} and imported it into the wallet`);
 
         // Create a new gateway for connecting to our peer node.

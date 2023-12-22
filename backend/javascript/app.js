@@ -5,7 +5,7 @@ const fs = require('fs');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-const registerUser = require('./javascript/registerUser');
+const registerUser = require('./registerUser.js');
 
 const app = express();
 app.use(cors());
@@ -31,9 +31,9 @@ app.use(bodyParser.json());
 app.use(express.json());
 
 app.post('/signup', async (req, res) => {
-    const { username, password, userType } = req.body;
+    const { firstName, lastName, password, userType } = req.body;
     try {
-        await registerUser(username, password, userType);
+        await registerUser(firstName, lastName, password, userType);
         //await contract.submitTransaction('registerUser', username, password, userType);
         res.json({ success: true });
     } catch (error) {
