@@ -5,10 +5,10 @@ import "../styles.css";
 function Login() {
   return (
     <div className="login template d-flex justify-content-center align-items-center 100-w vh-100 bg-light">
-      <div class="jumbotron">
-      <h1 class="display-4">Welcome to DigiDonor!</h1>
-      <p class="lead">Secure and stress-free donation services</p>
-      <hr class="my-4"/>
+      <div className="jumbotron">
+      <h1 className="display-4">Welcome to DigiDonor!</h1>
+      <p className="lead">Secure and stress-free donation services</p>
+      <hr className="my-4"/>
       <p>Built using Hyperledger Fabric</p>
       <a class="btn btn-outline-secondary btn-lg" href="#" role="button">Learn more</a>
       </div>
