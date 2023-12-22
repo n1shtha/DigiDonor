@@ -7,6 +7,7 @@ const cors = require('cors');
 
 const registerUser = require('./registerUser.js');
 const loginUser = require('./loginUser.js');
+const getUserType = require('./getUserType.js');
 
 const app = express();
 app.use(cors());
@@ -31,6 +32,15 @@ app.use(bodyParser.json());
 
 app.use(express.json());
 
+
+app.get('/', async (req, res) => {
+    try {
+        await res.render('index', {});
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 app.post('/signup', async (req, res) => {
     const { firstName, lastName, password } = req.body;
     try {
@@ -48,6 +58,17 @@ app.post('/login', async (req, res) => {
         await loginUser(username, password);
         //await contract.submitTransaction('registerUser', username, password, userType);
         res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.get('/users', async (req, res) => {
+    const { username } = req.body;
+    try {
+        const userType = await getUserType(username);
+        console.log(userType);
+        res.json(userType);
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }

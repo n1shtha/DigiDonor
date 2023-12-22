@@ -84,6 +84,25 @@ class DigiDonor extends Contract {
     // }
 
 
+    // GetUserType Function to get the user type based on username
+
+    async GetUserType(ctx, username) {
+        try {
+            const studentExists = await this.StudentExists(username);
+            const donorExists = await this.DonorExists(username);
+
+            if (studentExists) {
+                var userType = "student";
+                return userType
+            } else if (donorExists) {
+                var userType = "donor";
+            } else {
+                console.log("Invalid username.");
+            }
+        } catch (error) {
+            return `Error in getting user type: ${error.message}`;
+        }
+    }
 
     // LoginUser Function log in users and donors based on values stored in dictionary
     
@@ -109,7 +128,6 @@ class DigiDonor extends Contract {
 
                 if (donorAuthenticated) {
                     console.log("Donor authentication successful."); 
-                    var userType = donorAuthenticated.userType;
                     // then we push donor dashboard [TO-DO]
                 } else {
                     console.log("Donor authentication failed. Please try again");
@@ -118,8 +136,8 @@ class DigiDonor extends Contract {
         } catch (error) {
             return `Error authenticating user: ${error.message}`;
         }
-    }
-    
+    } 
+
     // RegisterUser Function to register users and donors based on userType
 
     async RegisterUser(ctx, username, password, userType) {

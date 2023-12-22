@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import "../styles.css";
 
@@ -14,6 +15,40 @@ function Login() {
 
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+    const navigate = useNavigate();
+
+    const handleNavigation = async () => {
+
+      console.log("Entered function");
+      const { username } = formData;
+
+      try {
+        const response = await axios.get("http://localhost.8080/users", { username });
+        console.log(response);
+        const userType = response.data;
+
+        if (userType === "student"){
+          navigate("/student");
+        } else if (userType === "donor") {
+          navigate("/donor");
+        } else {
+          navigate("/");
+        }
+      } catch (error) {
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          setMessage(error.response.data.error);
+        } else if (error.request) {
+          // The request was made but no response was received
+          setMessage('No response received from the server');
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          setMessage('An error occurred while setting up the request');
+        }
+      }
+    }
+
     const handleChange = (e) => {
         const { name, value } = e.target; 
         setFormData({ ...formData, [name]: value });
@@ -25,11 +60,11 @@ function Login() {
         // const username = `${firstName.toLowerCase()}${lastName.toLowerCase()}`;
         // const username = (firstName.toLowerCase() + " " + lastName.toLowerCase());
         // const username = formData.firstName + formData.lastName;
-
         try {
             await axios.post('http://localhost:8080/login', { username, password });
             setMessage('User logged in successfully!');
             setIsAuthenticated(true);
+            handleNavigation();
         } catch (error) {
             if (error.response) {
               // The request was made and the server responded with a status code
@@ -44,6 +79,7 @@ function Login() {
             }
           }
     };
+
   return (
     <div className="login template d-flex justify-content-center align-items-center vh-100 bg-light">
       <div class="jumbotron">
@@ -53,12 +89,6 @@ function Login() {
       <p>Built using Hyperledger Fabric</p>
       <a class="btn btn-outline-secondary btn-lg" href="#" role="button">Learn more</a>
       </div>
-      {isAuthenticated ? (
-      <div className="text-center mt-3">
-          <p>{message}</p>
-          <Link to="/student" className="btn btn-primary">Go to Student Dashboard [placeholder]</Link>
-      </div>
-      ) : (
       <div className="form_container p-5 rounded bg-white ms-4">
         <form onSubmit={handleSubmit}>
           <h3 className="text-center">Login</h3>
@@ -103,7 +133,6 @@ function Login() {
           </p>
         </form>
       </div>
-      )}
     </div>
   );
 }
