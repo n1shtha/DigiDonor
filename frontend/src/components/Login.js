@@ -1,10 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./styles.css";
+import "../styles.css";
 
 function Login() {
   return (
-    <div className="login template d-flex justify-content-center align-items-center 100-w vh-100 bg-light">
+    <div className="login template d-flex justify-content-center align-items-center vh-100 bg-light">
       <div class="jumbotron">
       <h1 class="display-4">Welcome to DigiDonor!</h1>
       <p class="lead">Secure and stress-free donation services</p>

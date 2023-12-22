@@ -18,11 +18,12 @@ const path = require("path");
 //     if (index === 3) userType = val; // 'user', 'university', or 'outlet'
 // });
 
-async function registerUser(username, password, userType) {
+async function registerUser(firstName, lastName, password, userType) {
     try {
         // load the network configuration
         const ccpPath = path.resolve(
             __dirname,
+            "..",
             "..",
             "..",
             "test-network",
@@ -41,11 +42,13 @@ async function registerUser(username, password, userType) {
         const walletPath = path.join(process.cwd(), "wallet");
         const wallet = await Wallets.newFileSystemWallet(walletPath);
 
+        const username = (firstName + lastName).toLowerCase();
+
         // Check to see if we've already enrolled the user.
-        const userIdentity = await wallet.get(userID);
+        const userIdentity = await wallet.get(username);
         if (userIdentity) {
             console.log(
-                `An identity for the user ${userID} already exists in the wallet`
+                `An identity for the user ${username} already exists in the wallet`
             );
             return;
         }
@@ -70,13 +73,13 @@ async function registerUser(username, password, userType) {
         const secret = await ca.register(
             {
                 // affiliation: affiliation,
-                enrollmentID: userID,
+                enrollmentID: username,
                 role: "client",
             },
             adminUser
         );
         const enrollment = await ca.enroll({
-            enrollmentID: userID,
+            enrollmentID: username,
             enrollmentSecret: secret,
         });
         const x509Identity = {
@@ -87,14 +90,14 @@ async function registerUser(username, password, userType) {
             mspId: "Org1MSP",
             type: "X.509",
         };
-        await wallet.put(userID, x509Identity);
+        await wallet.put(username, x509Identity);
         //console.log(`Successfully registered user ${userID} and imported it into the wallet`);
 
         // Create a new gateway for connecting to our peer node.
         const gateway = new Gateway();
         await gateway.connect(ccp, {
             wallet,
-            identity: userID,
+            identity: username,
             discovery: { enabled: true, asLocalhost: true },
         });
 
@@ -109,7 +112,7 @@ async function registerUser(username, password, userType) {
 
         if (registerUserResponse) {
             console.log(
-                `Successfully registered user ${userID} of type ${userType} and imported into the wallet.`
+                `Successfully registered user ${username} of type ${userType} and imported into the wallet.`
             );
         } else {
             console.log(registerUserResponse.toString());
@@ -118,7 +121,7 @@ async function registerUser(username, password, userType) {
         await gateway.disconnect();
 
     } catch (error) {
-        console.error(`Failed to register user ${userID}: ${error}`);
+        console.error(`Failed to register user ${username}: ${error}`);
         process.exit(1);
     }
 }
