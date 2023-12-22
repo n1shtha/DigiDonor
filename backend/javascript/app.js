@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const registerUser = require('./registerUser.js');
+const loginUser = require('./loginUser.js');
 
 const app = express();
 app.use(cors());
@@ -31,9 +32,20 @@ app.use(bodyParser.json());
 app.use(express.json());
 
 app.post('/signup', async (req, res) => {
-    const { firstName, lastName, password, userType } = req.body;
+    const { firstName, lastName, password } = req.body;
     try {
-        await registerUser(firstName, lastName, password, userType);
+        await registerUser(firstName, lastName, password);
+        //await contract.submitTransaction('registerUser', username, password, userType);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+    try {
+        await loginUser(username, password);
         //await contract.submitTransaction('registerUser', username, password, userType);
         res.json({ success: true });
     } catch (error) {
