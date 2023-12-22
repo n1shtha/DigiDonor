@@ -83,19 +83,19 @@ class DigiDonor extends Contract {
     //     return outlets.outletID;
     // }
 
-
+    /** 
     // GetUserType Function to get the user type based on username
-
     async GetUserType(ctx, username) {
         try {
             const studentExists = await this.StudentExists(username);
             const donorExists = await this.DonorExists(username);
 
             if (studentExists) {
-                var userType = "student";
+                const userType = "student";
                 return userType
             } else if (donorExists) {
-                var userType = "donor";
+                const userType = "donor";
+                return userType
             } else {
                 console.log("Invalid username.");
             }
@@ -103,40 +103,74 @@ class DigiDonor extends Contract {
             return `Error in getting user type: ${error.message}`;
         }
     }
+    */
+
+    // RaiseRequest Function to create a donation request from a student
+
+    async RaiseRequest(ctx, reqID, username, amount, purpose) {
+        try{
+        // Create the request object
+            const request = {
+                reqID: reqID,
+                recipient: username,
+                amount: amount,
+                purpose: purpose,
+                status: "open"
+            };
+        
+            // Insert into the ledger
+            await ctx.stub.putState(id, Buffer.from(JSON.stringify(request)));
+
+            return JSON.stringify(request);
+        } catch (error) {
+            return `Error raising request: ${error.message}`;
+        }
+    }
 
     // LoginUser Function log in users and donors based on values stored in dictionary
     
-    async LoginUser(ctx, username, password) {
+    async LoginUser(ctx, username, password, userType) {
+        
         try {
-            const studentExists = await this.StudentExists(username);
-            const donorExists = await this.DonorExists(username);
 
-            if (studentExists) {
-                // Check if login details are correct
-                const studentAuthenticated = students.find(student => student.username === username && student.password === password);
+            if (userType === "student") {
+                const studentExists = await this.StudentExists(username);
 
-                if (studentAuthenticated) {
-                    console.log("Student authentication successful.");
-                    var userType = studentAuthenticated.userType;
-                    // then we push student dashboard [TO-DO]
+                if (studentExists) {
+                    // Check if login details are correct
+                    const studentAuthenticated = students.find(student => student.username === username && student.password === password);
+    
+                    if (studentAuthenticated) {
+                        console.log("Student authentication successful.");
+                        // then we push student dashboard [TO-DO]
+                    } else {
+                        console.log("Student authentication failed. Please try again");
+                    }   
                 } else {
-                    console.log("Student authentication failed. Please try again");
-                }   
-            } else if (donorExists) {
-                // Check if login details are correct
-                const donorAuthenticated = donors.find(donor => donor.username === username && donor.password === password);
-
-                if (donorAuthenticated) {
-                    console.log("Donor authentication successful."); 
-                    // then we push donor dashboard [TO-DO]
-                } else {
-                    console.log("Donor authentication failed. Please try again");
+                    console.log("Student record doesn't exist.");
                 }
-            }
+
+            } else if (userType === "donor") {
+                const donorExists = await this.DonorExists(username);
+
+                if (donorExists) {
+                    // Check if login details are correct
+                    const donorAuthenticated = donors.find(donor => donor.username === username && donor.password === password);
+    
+                    if (donorAuthenticated) {
+                        console.log("Donor authentication successful.");
+                        // then we push student dashboard [TO-DO]
+                    } else {
+                        console.log("Donor authentication failed. Please try again");
+                    }   
+                } else {
+                    console.log("Donor record doesn't exist.");
+                }
+            } 
         } catch (error) {
             return `Error authenticating user: ${error.message}`;
         }
-    } 
+    }
 
     // RegisterUser Function to register users and donors based on userType
 

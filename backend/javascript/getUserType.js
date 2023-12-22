@@ -39,7 +39,7 @@ async function getUserType(username) {
         const userIdentity = await wallet.get(username);
         if (!userIdentity) {
             console.log(
-                `An identity for the user ${username} does not exist in the wallet, please register first.`
+                `An identity for the user ${username} does not exist in the wallet, please register first so that you can get the user type.`
             );
             return;
         }
@@ -59,14 +59,16 @@ async function getUserType(username) {
         const contract = network.getContract("DigiDonor");
 
         // Register the user such that it reflects in the chaincode
-        const getUserTypeResponse = await contract.submitTransaction( "GetUserType", username);
+        const getUserTypeResponse = await contract.evaluateTransaction("GetUserType", username);
         console.log(getUserTypeResponse);
 
         if (getUserTypeResponse) {
             console.log(
                 `Successfully got user type for ${username}.`
             );
+
             return getUserTypeResponse;
+
         } else {
             console.log(getUserTypeResponse.toString());
         }

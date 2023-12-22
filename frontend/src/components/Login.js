@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
@@ -11,28 +11,66 @@ function Login() {
         password: ''
     });
 
+    // const usernameRef = useRef(null);
+    // const passwordRef = useRef(null);
+
     const [message, setMessage] = useState('');
 
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     const navigate = useNavigate();
 
-    const handleNavigation = async () => {
+    /** 
+    const handleNavigation = async () => 
+    {
 
+      /** 
+      e.preventDefault();
       console.log("Entered function");
-      const { username } = formData;
+      const username = e.target.username.value
+      console.log(username);
+      
+
+      const username = usernameRef.current.value;
+      console.log(username);
 
       try {
-        const response = await axios.get("http://localhost.8080/users", { username });
-        console.log(response);
-        const userType = response.data;
 
-        if (userType === "student"){
-          navigate("/student");
-        } else if (userType === "donor") {
-          navigate("/donor");
+        console.log("Entered try-catch block.");
+        await axios.post('http://localhost:8080/users', username);
+        setMessage(true);
+        console.log(message);
+
+      } catch (error) {
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          setMessage(error.response.data.error);
+        } else if (error.request) {
+          // The request was made but no response was received
+          setMessage('No response received from the server');
         } else {
-          navigate("/");
+          // Something happened in setting up the request that triggered an Error
+          setMessage('An error occurred while setting up the request');
+        }
+      }
+
+      try {
+
+        console.log("Entered second try-catch block.");
+        if (message) {
+          const response = await axios.get('http://localhost:8080/users');
+          var userType = response.data;
+
+          if (userType === "student"){
+            navigate("/student");
+          } else if (userType === "donor") {
+            navigate("/donor");
+          } else {
+            navigate("/");
+          }
+        } else {
+          var userType = null;
         }
       } catch (error) {
         if (error.response) {
@@ -47,8 +85,11 @@ function Login() {
           setMessage('An error occurred while setting up the request');
         }
       }
+      
     }
-
+    
+    */
+    
     const handleChange = (e) => {
         const { name, value } = e.target; 
         setFormData({ ...formData, [name]: value });
@@ -56,15 +97,25 @@ function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const { username, password } = formData;
+
+        const { username, password, userType } = formData;
         // const username = `${firstName.toLowerCase()}${lastName.toLowerCase()}`;
         // const username = (firstName.toLowerCase() + " " + lastName.toLowerCase());
         // const username = formData.firstName + formData.lastName;
+
         try {
-            await axios.post('http://localhost:8080/login', { username, password });
+            await axios.post('http://localhost:8080/login', { username, password, userType });
             setMessage('User logged in successfully!');
             setIsAuthenticated(true);
-            handleNavigation();
+
+            if (userType === "student") {
+              navigate("/student");
+            } else if (userType === "donor") {
+              navigate("/donor");
+            } else {
+              navigate("/");
+            }
+            // handleNavigation();
         } catch (error) {
             if (error.response) {
               // The request was made and the server responded with a status code
@@ -95,6 +146,7 @@ function Login() {
           <div className="mb-2">
             <label htmlFor="username">Username:</label>
             <input
+              // ref={usernameRef}
               type="text"
               name="username"
               defaultValue={formData.username}
@@ -106,6 +158,7 @@ function Login() {
           <div className="mb-2">
             <label htmlFor="password">Password:</label>
             <input
+              // ref={passwordRef}
               type="password"
               name="password"
               defaultValue={formData.password}
@@ -113,6 +166,34 @@ function Login() {
               placeholder="Enter password"
               className="form-control"
             />
+          </div>
+          <div className="form-check form-check-inline mb-2">
+            <input 
+                className="form-check-input" 
+                type="radio" 
+                name="userType" 
+                id="student" 
+                defaultValue="student" 
+                checked={formData.userType === 'student'} 
+                onChange={handleChange}
+            />
+            <label className="form-check-label" htmlFor="student">
+                Student
+            </label>
+          </div>
+          <div className="form-check form-check-inline mb-2">
+              <input 
+                  className="form-check-input" 
+                  type="radio" 
+                  name="userType" 
+                  id="donor" 
+                  defaultValue="donor" 
+                  checked={formData.userType === 'donor'} 
+                  onChange={handleChange}
+              />
+              <label className="form-check-label" htmlFor="donor">
+                  Donor
+              </label>
           </div>
           <div className="mb-2">
             <input

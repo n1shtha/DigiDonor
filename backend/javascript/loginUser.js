@@ -11,7 +11,7 @@ const FabricCAServices = require("fabric-ca-client");
 const fs = require("fs");
 const path = require("path");
 
-async function loginUser(username, password) {
+async function loginUser(username, password, userType) {
     try {
         // load the network configuration
         const ccpPath = path.resolve(
@@ -59,7 +59,7 @@ async function loginUser(username, password) {
         const contract = network.getContract("DigiDonor");
 
         // Register the user such that it reflects in the chaincode
-        const loginUserResponse = await contract.submitTransaction( "LoginUser", username, password);
+        const loginUserResponse = await contract.submitTransaction( "LoginUser", username, password, userType);
 
         if (loginUserResponse) {
             console.log(

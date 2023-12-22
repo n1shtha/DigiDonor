@@ -7,7 +7,7 @@ const cors = require('cors');
 
 const registerUser = require('./registerUser.js');
 const loginUser = require('./loginUser.js');
-const getUserType = require('./getUserType.js');
+// const getUserType = require('./getUserType.js');
 
 const app = express();
 app.use(cors());
@@ -15,7 +15,8 @@ app.use(cors());
 const PORT = 8080;
 
 
-app.use(bodyParser.json());
+var jsonParser = bodyParser.json();
+var textParser = app.use(bodyParser.text({ type: 'text/*' }));
 
 // const ccpPath = path.resolve(__dirname, '..', 'connection.json');
 // const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
@@ -53,9 +54,9 @@ app.post('/signup', async (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password, userType } = req.body;
     try {
-        await loginUser(username, password);
+        await loginUser(username, password, userType);
         //await contract.submitTransaction('registerUser', username, password, userType);
         res.json({ success: true });
     } catch (error) {
@@ -63,16 +64,29 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.get('/users', async (req, res) => {
-    const { username } = req.body;
+/** 
+
+app.get('/users', textParser, async (req, res) => {
+    console.log("Entered get request.");
+    var username = req.body;
+    console.log(username);
+    res.send("true");
+});
+
+app.post('/users', textParser, async (req, res) => {
+    console.log("Entered post request.");
+    var username = req.body;
+    console.log(username);
     try {
-        const userType = await getUserType(username);
+        var userType = await getUserType(username);
         console.log(userType);
         res.json(userType);
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
 });
+
+*/
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
