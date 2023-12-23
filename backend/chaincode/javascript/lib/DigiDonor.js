@@ -14,18 +14,18 @@ const { Contract } = require("fabric-contract-api");
 // list of users
 var students = [
     {
-        "username": "",
-        "password": "",
-        "userType": "student"
-    }
+        username: "",
+        password: "",
+        userType: "student",
+    },
 ];
 // list of donors
 var donors = [
     {
-        "username": "",
-        "password": "",
-        "userType": "donor"
-    }
+        username: "",
+        password: "",
+        userType: "donor",
+    },
 ];
 // // list of outlets
 // var outlets = {};
@@ -42,22 +42,22 @@ class DigiDonor extends Contract {
                     recipient: "testuser",
                     amount: 100,
                     purpose: "meal",
-                    status: "open"
+                    status: "open",
                 },
                 {
                     reqID: "R2",
                     recipient: "testuser",
                     amount: 1000,
                     purpose: "stationary",
-                    status: "open"
+                    status: "open",
                 },
                 {
                     reqID: "R3",
                     recipient: "testuser",
                     amount: 250,
                     purpose: "meal",
-                    status: "open"
-                }
+                    status: "open",
+                },
             ];
 
             // Iterate through assets and add them to the ledger
@@ -78,7 +78,7 @@ class DigiDonor extends Contract {
     // called in RegisterUser function
     async StudentExists(userID) {
         // Check if the user is in users dict
-        const exists = students.some(student => student.username === userID);
+        const exists = students.some((student) => student.username === userID);
         return exists;
     }
 
@@ -86,38 +86,37 @@ class DigiDonor extends Contract {
     // called in RegisterUser function
     async DonorExists(donorID) {
         // Check if the donor is in donors dict
-        const exists = donors.some(donor => donor.username === donorID);
+        const exists = donors.some((donor) => donor.username === donorID);
         return exists;
     }
 
     // [TO-DO] DonorDonates Function to create tokens for a donor upon registration, based on a certain amount
 
-    async DonorDonates(username, amount){
+    async DonorDonates(username, amount) {
         // Calculate the number of tokens based on the amount (assuming each token is worth 10 units)
         const numberOfTokens = Math.floor(amount / 10);
 
         // Array to hold the tokens
         const tokens = [];
-        
+
         // Generate tokens
         for (let i = 0; i < numberOfTokens; i++) {
-            // Generate a random token ID 
-            const tokenID = Math.floor(Math.random() * 1000000); 
-            
+            // Generate a random token ID
+            const tokenID = Math.floor(Math.random() * 1000000);
+
             // Create the token object
             const token = {
                 ID: tokenID,
                 donor: username,
-                amount: 10 // Q: won't we have to change this to another var, units?
+                amount: 10, // Q: won't we have to change this to another var, units?
             };
-            
+
             // Add the token to the array
             tokens.push(token);
         }
-        
+
         return tokens;
     }
-
 
     // [TO-DO] BrowsePrevReq Function to list closed donation requests that have a token and donor associated to them
 
@@ -127,12 +126,13 @@ class DigiDonor extends Contract {
             const allAssetsJSON = await this.GetAllAssets(ctx);
             const allAssets = JSON.parse(allAssetsJSON);
 
-            user_requests = []
+            user_requests = [];
             // Filter all requests with "status": "open" and "recipient" : username
             // Store resulting rewards in a user_requests array
             user_requests = allAssets
                 .filter(
-                    (asset) => asset.status === "open" && asset.recipient === username // Q: students should be able to see both open and closed?
+                    (asset) =>
+                        asset.status === "open" && asset.recipient === username // Q: students should be able to see both open and closed?
                 )
                 .map((request) => JSON.stringify(request));
 
@@ -146,40 +146,38 @@ class DigiDonor extends Contract {
     // [TO-DO] ListRequests Function to list open donation requests
 
     async ListRequests(ctx) {
-        requests = []
-               try {
-                   // Call GetAllAssets to retrieve all assets from the world state
-                   const allAssetsJSON = await this.GetAllAssets(ctx);
-                   const allAssets = JSON.parse(allAssetsJSON);
-       
-                   // Filter all assets with "status": "open" 
-                   // Store resulting rewards in the requests array
-                   requests = allAssets
-                       .filter(
-                           (asset) => asset.status === "open" 
-                       )
-                       .map((request) => JSON.stringify(request));
-       
-                   // Return the filtered requests array 
-                   return requests;
-               } catch (error) {
-                   return `Error listing requests: ${error.message}`;
-               }
-           }
+        requests = [];
+        try {
+            // Call GetAllAssets to retrieve all assets from the world state
+            const allAssetsJSON = await this.GetAllAssets(ctx);
+            const allAssets = JSON.parse(allAssetsJSON);
+
+            // Filter all assets with "status": "open"
+            // Store resulting rewards in the requests array
+            requests = allAssets
+                .filter((asset) => asset.status === "open")
+                .map((request) => JSON.stringify(request));
+
+            // Return the filtered requests array
+            return requests;
+        } catch (error) {
+            return `Error listing requests: ${error.message}`;
+        }
+    }
 
     // [TO-DO] RaiseRequest Function to create a donation request from a student
 
     async RaiseRequest(ctx, reqID, username, amount, purpose) {
-        try{
-        // Create the request object
+        try {
+            // Create the request object
             const request = {
                 reqID: reqID,
                 recipient: username,
                 amount: amount,
                 purpose: purpose,
-                status: "open"
+                status: "open",
             };
-        
+
             // Insert into the ledger
             await ctx.stub.putState(id, Buffer.from(JSON.stringify(request)));
             return JSON.stringify(request);
@@ -189,44 +187,54 @@ class DigiDonor extends Contract {
     }
 
     // [DONE] LoginUser Function log in users and donors based on values stored in dictionary
-    
+
     async LoginUser(ctx, username, password, userType) {
-        
         try {
             if (userType === "student") {
                 const studentExists = await this.StudentExists(username);
 
                 if (studentExists) {
                     // Check if login details are correct
-                    const studentAuthenticated = students.find(student => student.username === username && student.password === password);
-    
+                    const studentAuthenticated = students.find(
+                        (student) =>
+                            student.username === username &&
+                            student.password === password
+                    );
+
                     if (studentAuthenticated) {
                         console.log("Student authentication successful.");
                         // then we push student dashboard [TO-DO]
                     } else {
-                        console.log("Student authentication failed. Please try again");
-                    }   
+                        console.log(
+                            "Student authentication failed. Please try again"
+                        );
+                    }
                 } else {
                     console.log("Student record doesn't exist.");
                 }
-
             } else if (userType === "donor") {
                 const donorExists = await this.DonorExists(username);
 
                 if (donorExists) {
                     // Check if login details are correct
-                    const donorAuthenticated = donors.find(donor => donor.username === username && donor.password === password);
-    
+                    const donorAuthenticated = donors.find(
+                        (donor) =>
+                            donor.username === username &&
+                            donor.password === password
+                    );
+
                     if (donorAuthenticated) {
                         console.log("Donor authentication successful.");
                         // then we push student dashboard [TO-DO]
                     } else {
-                        console.log("Donor authentication failed. Please try again");
-                    }   
+                        console.log(
+                            "Donor authentication failed. Please try again"
+                        );
+                    }
                 } else {
                     console.log("Donor record doesn't exist.");
                 }
-            } 
+            }
         } catch (error) {
             return `Error authenticating user: ${error.message}`;
         }
@@ -236,31 +244,30 @@ class DigiDonor extends Contract {
 
     async RegisterUser(ctx, username, password, userType) {
         try {
-            if (userType === "student"){
-                // Check if the student already exists 
+            if (userType === "student") {
+                // Check if the student already exists
                 const studentExists = await this.StudentExists(username);
 
-                if (!studentExists){
+                if (!studentExists) {
                     // Register the student
                     const newStudent = {
-                        "username": username,
-                        "password": password,
-                        "userType": userType
+                        username: username,
+                        password: password,
+                        userType: userType,
                     };
 
                     students.push(newStudent);
                 }
-                
-            } else if (userType === 'donor'){
-                // Check if the donor already exists 
+            } else if (userType === "donor") {
+                // Check if the donor already exists
                 const donorExists = await this.DonorExists(username);
 
-                if (!donorExists){
+                if (!donorExists) {
                     // Register the student
                     const newDonor = {
-                        "username": username,
-                        "password": password,
-                        "userType": userType
+                        username: username,
+                        password: password,
+                        userType: userType,
                     };
 
                     donors.push(newDonor);
@@ -270,7 +277,9 @@ class DigiDonor extends Contract {
 
             // Throw a new error if the student/donor is already registered
             if (exists) {
-                throw new Error(`A user of ${userType} type with username ${username} already exists.`);
+                throw new Error(
+                    `A user of ${userType} type with username ${username} already exists.`
+                );
             }
 
             // Return ! of exists (if user does not exist, gives a "true" so the client function can go ahead)
@@ -635,7 +644,6 @@ class DigiDonor extends Contract {
             return `Error transferring reward: ${error.message}`;
         }
     }
-
 
     // // OutletExists checks if outlet is already registered
     // // called in RegisterUser function

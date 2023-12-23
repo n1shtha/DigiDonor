@@ -59,12 +59,13 @@ async function getAllAssets(username) {
         const contract = network.getContract("DigiDonor");
 
         // Register the user such that it reflects in the chaincode
-        const getAllAssetsResponse = await contract.evaluateTransaction("GetAllAssets");
+        const getAllAssetsResponse = await contract.evaluateTransaction(
+            "GetAllAssets"
+        );
         console.log(`Listing all assets`, getAllAssetsResponse.toString());
 
         // Disconnect from the gateway after executing registration
         await gateway.disconnect();
-
     } catch (error) {
         console.error(`Failed to list all assets: ${error}`);
         process.exit(1);
