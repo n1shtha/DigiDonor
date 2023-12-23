@@ -66,18 +66,21 @@ async function raiseRequest(reqID, username, amount, purpose) {
         const contract = network.getContract("DigiDonor");
 
         // Register the user such that it reflects in the chaincode
-        const raiseRequestResponse = await contract.submitTransaction("RaiseRequest", reqID, username, amount, purpose);
+        const raiseRequestResponse = await contract.submitTransaction(
+            "RaiseRequest",
+            reqID,
+            username,
+            amount,
+            purpose
+        );
 
         if (raiseRequestResponse) {
-            console.log(
-                `Successfully raised request ${reqID} by ${username}.`
-            );
+            console.log(`Successfully raised request ${reqID} by ${username}.`);
         } else {
             console.log(raiseRequestResponse.toString());
         }
         // Disconnect from the gateway after executing registration
         await gateway.disconnect();
-
     } catch (error) {
         console.error(`Failed to raise request ${reqID}: ${error}`);
         process.exit(1);

@@ -23,9 +23,6 @@ function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { firstName, lastName, password, userType } = formData;
-    // const username = `${firstName.toLowerCase()}${lastName.toLowerCase()}`;
-    // const username = (firstName.toLowerCase() + " " + lastName.toLowerCase());
-    // const username = formData.firstName + formData.lastName;
 
     try {
       await axios.post("http://localhost:8080/signup", {

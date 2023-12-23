@@ -7,7 +7,7 @@ const cors = require("cors");
 
 const registerUser = require("./registerUser.js");
 const loginUser = require("./loginUser.js");
-// const getAllAssets = require('./getAllAssets.js');
+const getAllAssets = require("./getAllAssets.js");
 // const getUserType = require('./getUserType.js');
 const raiseRequest = require("./raiseRequest.js");
 
@@ -67,8 +67,8 @@ app.post("/login", async (req, res) => {
 });
 
 // [TO-DO]
-app.get("/allassets", async (req, res) => {
-    const username = req.body;
+app.post("/allassets", async (req, res) => {
+    const { username } = req.body;
     try {
         const allAssetsData = await getAllAssets(username);
         //await contract.submitTransaction('registerUser', username, password, userType);
@@ -82,8 +82,9 @@ app.get("/allassets", async (req, res) => {
 app.post("/newrequest", async (req, res) => {
     const { reqID, username, amount, purpose } = req.body;
     try {
-        await raiseRequest(reqID, username, amount, purpose);
-        res.json({ success: true });
+        const newRequest = await raiseRequest(reqID, username, amount, purpose);
+        // res.json({ success: true });
+        res.json({ newRequest });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }

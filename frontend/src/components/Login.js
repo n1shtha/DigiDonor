@@ -98,9 +98,6 @@ function Login() {
     e.preventDefault();
 
     const { username, password, userType } = formData;
-    // const username = `${firstName.toLowerCase()}${lastName.toLowerCase()}`;
-    // const username = (firstName.toLowerCase() + " " + lastName.toLowerCase());
-    // const username = formData.firstName + formData.lastName;
 
     try {
       await axios.post("http://localhost:8080/login", {
@@ -110,6 +107,10 @@ function Login() {
       });
       setMessage("User logged in successfully!");
       setIsAuthenticated(true);
+      localStorage.setItem(
+        "loggedInUsername",
+        JSON.stringify(formData.username)
+      ); // storing username to localStorage so that it persists, [TO-DO]: i) check if user logged in earlier and ii) logout functionality
 
       if (userType === "student") {
         navigate("/student");

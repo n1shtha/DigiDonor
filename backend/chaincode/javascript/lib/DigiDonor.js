@@ -64,7 +64,7 @@ class DigiDonor extends Contract {
             for (const asset of initialAssets) {
                 // Insert data into the world state
                 await ctx.stub.putState(
-                    asset.ID,
+                    asset.reqID,
                     Buffer.from(JSON.stringify(asset))
                 );
             }
@@ -179,7 +179,10 @@ class DigiDonor extends Contract {
             };
 
             // Insert into the ledger
-            await ctx.stub.putState(id, Buffer.from(JSON.stringify(request)));
+            await ctx.stub.putState(
+                reqID,
+                Buffer.from(JSON.stringify(request))
+            );
             return JSON.stringify(request);
         } catch (error) {
             return `Error raising request: ${error.message}`;
