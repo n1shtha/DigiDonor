@@ -11,7 +11,7 @@ const FabricCAServices = require("fabric-ca-client");
 const fs = require("fs");
 const path = require("path");
 
-async function loginUser(username, password, userType) {
+async function getAllAssets(username) {
     try {
         // load the network configuration
         const ccpPath = path.resolve(
@@ -39,7 +39,7 @@ async function loginUser(username, password, userType) {
         const userIdentity = await wallet.get(username);
         if (!userIdentity) {
             console.log(
-                `An identity for the user ${username} does not exist in the wallet, please register first.`
+                `An identity for the user ${username} does not exist in the wallet, please register first so that you can get requests.`
             );
             return;
         }
@@ -59,22 +59,16 @@ async function loginUser(username, password, userType) {
         const contract = network.getContract("DigiDonor");
 
         // Register the user such that it reflects in the chaincode
-        const loginUserResponse = await contract.submitTransaction( "LoginUser", username, password, userType);
+        const getAllAssetsResponse = await contract.evaluateTransaction("GetAllAssets");
+        console.log(`Listing all assets`, getAllAssetsResponse.toString());
 
-        if (loginUserResponse) {
-            console.log(
-                `Successfully logged in user ${username}.`
-            );
-        } else {
-            console.log(loginUserResponse.toString());
-        }
         // Disconnect from the gateway after executing registration
         await gateway.disconnect();
 
     } catch (error) {
-        console.error(`Failed to login user ${username}: ${error}`);
+        console.error(`Failed to list all assets: ${error}`);
         process.exit(1);
     }
 }
 
-module.exports = loginUser;
+module.exports = getAllAssets;

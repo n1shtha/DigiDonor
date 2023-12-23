@@ -1,14 +1,78 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import axios from 'axios';
 import "../styles.css";
 
 function StudentHome() {
+
+    const [formData, setFormData] = useState({
+        reqID: '',
+        amount: '',
+        purpose: ''
+    });
 
     const generateRandomID = (event) => {
         event.preventDefault();
         const randomID = 'ID_' + Math.random().toString(36).substr(2, 9);
         document.getElementById("randomIDGen").value = randomID;
-      };
+    };
+      
+      
+    const [message, setMessage] = useState('');
+
+    const handleFetch = async (e) => {
+        e.preventDefault();
+        const username = JSON.parse("testuser"); // Q: we'll have to figure out a way to keep username for the session
+
+        try {
+            await axios.get('http://localhost:8080/allassets', { username });
+            setMessage('Data fetched successfully!');
+            
+        } catch (error) {
+            if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                setMessage(error.response.data.error);
+            } else if (error.request) {
+                // The request was made but no response was received
+                setMessage('No response received from the server');
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                setMessage('An error occurred while setting up the request');
+            }
+          }
+    };
+
+    // const username = "admin"; // Q: how will we send username across, we aren't querying for that + this is leading to the same "does not exist" error
+   
+    const handleChange = (e) => {
+        const { name, value } = e.target; 
+        setFormData({ ...formData, [name]: value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const { reqID, amount, purpose } = formData;
+        const username = "testuser";
+
+        try {
+            await axios.post('http://localhost:8080/newrequest', { reqID, username, amount, purpose });
+            setMessage('Request raised successfully!');
+
+        } catch (error) {
+            if (error.response) {
+              // The request was made and the server responded with a status code
+              // that falls out of the range of 2xx
+              setMessage(error.response.data.error);
+            } else if (error.request) {
+              // The request was made but no response was received
+              setMessage('No response received from the server');
+            } else {
+              // Something happened in setting up the request that triggered an Error
+              setMessage('An error occurred while setting up the request');
+            }
+          }
+    };
 
     return (
         <div className="bg-light">
@@ -54,72 +118,136 @@ function StudentHome() {
                                     </tr>
                                 </tbody>
                             </table>
+                            <button class="btn btn-outline-info" type="submit" onClick={handleFetch}>Fetch results</button>
                         </div>
                     </div>
                     <div className="col">
                         <h4 className="m-2 text-center">Create new request</h4>
                         <div className="form-container p-5 rounded bg-white">
-                            <form>
-                            <div class="input-group mb-3">
-                            <button class="btn btn-outline-info" type="button" onClick={generateRandomID}>Generate ID</button>
-                            <input type="text" id="randomIDGen" class="form-control w-25" readOnly/>
-                            </div>
-                            <label htmlFor="amount" className="mt-4">Request amount:</label>
-                                <div className="form-check form-check-inline ms-3 mb-3">
-                                    <input className="form-check-input" type="radio" name="requestAmount" id="100" value="100 INR"/>
-                                    <label className="form-check-label" for="100">
-                                        100 INR
-                                    </label>
+                            <form onSubmit={handleSubmit}>
+                                <div class="input-group mb-3">
+                                <button class="btn btn-outline-info" type="button" onClick={generateRandomID}>Generate ID</button>
+                                <input
+                                    className="form-control w-25"
+                                    type="text" 
+                                    id="randomIDGen" 
+                                    defaultValue={formData.reqID}
+                                    onChange={handleChange}
+                                    />
                                 </div>
-                                <div className="form-check form-check-inline mb-3">
-                                    <input className="form-check-input" type="radio" name="requestAmount" id="250" value="250 INR"/>
-                                    <label className="form-check-label" for="250">
-                                        250 INR
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline mb-3">
-                                    <input className="form-check-input" type="radio" name="requestAmount" id="500" value="500 INR"/>
-                                    <label className="form-check-label" for="500">
-                                        500 INR
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline mb-3">
-                                    <input className="form-check-input" type="radio" name="requestAmount" id="1000" value="1000 INR"/>
-                                    <label className="form-check-label" for="1000">
-                                        1000 INR
-                                    </label>
-                                </div>
-                                <label htmlFor="type">Request type:</label>
-                                <div className="form-check form-check-inline ms-3 mb-3">
-                                    <input className="form-check-input" type="radio" name="requestType" id="meal" value="Meal"/>
-                                    <label className="form-check-label" for="meal">
-                                        Meal
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline mb-3">
-                                    <input className="form-check-input" type="radio" name="requestType" id="stationary" value="Stationary"/>
-                                    <label className="form-check-label" for="stationary">
-                                        Stationary
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline mb-3">
-                                    <input className="form-check-input" type="radio" name="requestType" id="books" value="Books"/>
-                                    <label className="form-check-label" for="books">
-                                        Books
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline mb-3">
-                                    <input className="form-check-input" type="radio" name="requestType" id="decoration" value="Decoration"/>
-                                    <label className="form-check-label" for="decoration">
-                                        Decoration
-                                    </label>
-                                </div>
-                                <div className="mb-3">
-                                <label for="big-text" className="form-label">Description of request (optional):</label>
-                                <textarea className="form-control" id="big-text" rows="3"></textarea>
-                                </div>
-                                <button class="btn btn-outline-success mb-1" type="button">Create</button>
-                            </form>
+                                <label htmlFor="amount" className="mt-4">Request amount:</label>
+                                    <div className="form-check form-check-inline ms-3 mb-3">
+                                        <input
+                                            className="form-check-input"
+                                            type="radio" 
+                                            name="requestAmount" 
+                                            id="100" 
+                                            value="100 INR" 
+                                            checked={formData.amount === 100} 
+                                            onChange={handleChange}/>
+                                        <label className="form-check-label" htmlFor="100">
+                                            100 INR
+                                        </label>
+                                    </div>
+                                    <div className="form-check form-check-inline mb-3">
+                                        <input
+                                            className="form-check-input"
+                                            type="radio" 
+                                            name="requestAmount" 
+                                            id="250" 
+                                            value="250 INR" 
+                                            checked={formData.amount === 250} 
+                                            onChange={handleChange}/>
+                                        <label className="form-check-label" htmlFor="250">
+                                            250 INR
+                                        </label>
+                                    </div>
+                                    <div className="form-check form-check-inline mb-3">
+                                        <input
+                                            className="form-check-input"
+                                            type="radio" 
+                                            name="requestAmount" 
+                                            id="500" 
+                                            value="500 INR" 
+                                            checked={formData.amount === 500} 
+                                            onChange={handleChange}/>
+                                        <label className="form-check-label" htmlFor="500">
+                                            500 INR
+                                        </label>
+                                    </div>
+                                    <div className="form-check form-check-inline mb-3">
+                                        <input
+                                            className="form-check-input"
+                                            type="radio" 
+                                            name="requestAmount" 
+                                            id="1000" 
+                                            value="1000 INR" 
+                                            checked={formData.amount === 1000} 
+                                            onChange={handleChange}/>
+                                        <label className="form-check-label" htmlFor="1000">
+                                            1000 INR
+                                        </label>
+                                    </div>
+                                    <label htmlFor="type">Request type:</label>
+                                    <div className="form-check form-check-inline ms-3 mb-3">
+                                        <input
+                                            className="form-check-input"
+                                            type="radio" 
+                                            name="requestType" 
+                                            id="meal" 
+                                            defaultValue="meal" 
+                                            checked={formData.purpose === "meal"} 
+                                            onChange={handleChange}
+                                        />
+                                        <label className="form-check-label" htmlFor="meal">
+                                            Meal
+                                        </label>
+                                    </div>
+                                    <div className="form-check form-check-inline mb-3">
+                                        <input
+                                            className="form-check-input"
+                                            type="radio" 
+                                            name="requestType" 
+                                            id="stationary" 
+                                            defaultValue="stationary" 
+                                            checked={formData.purpose === "stationary"} 
+                                            onChange={handleChange}/>
+                                        <label className="form-check-label" htmlFor="stationary">
+                                            Stationary
+                                        </label>
+                                    </div>
+                                    <div className="form-check form-check-inline mb-3">
+                                        <input
+                                            className="form-check-input"
+                                            type="radio" 
+                                            name="requestType" 
+                                            id="books" 
+                                            defaultValue="books" 
+                                            checked={formData.purpose === "books"} 
+                                            onChange={handleChange}/>
+                                        <label className="form-check-label" htmlFor="books">
+                                            Books
+                                        </label>
+                                    </div>
+                                    <div className="form-check form-check-inline mb-3">
+                                        <input
+                                            className="form-check-input"
+                                            type="radio" 
+                                            name="requestType" 
+                                            id="decoration" 
+                                            defaultValue="decoration" 
+                                            checked={formData.purpose === "decoration"} 
+                                            onChange={handleChange}/>
+                                        <label className="form-check-label" htmlFor="decoration">
+                                            Decoration
+                                        </label>
+                                    </div>
+                                    <div className="mb-3">
+                                    <label for="big-text" className="form-label">Description of request (optional):</label>
+                                    <textarea className="form-control" id="big-text" rows="3"></textarea>
+                                    </div>
+                                    <button class="btn btn-outline-success mb-1" type="submit">Create</button>
+                                </form>
                         </div>
                         <h4 className="mt-4 mb-2 text-center">Redeem a token</h4>
                         <div className="form-container p-5 rounded bg-white">
