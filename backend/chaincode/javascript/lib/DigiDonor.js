@@ -7,6 +7,8 @@
 // importing modules from Fabric Contract API
 const { Contract } = require("fabric-contract-api");
 
+// Other imports
+
 // Creating necessary data structures
 
 // list of users
@@ -36,14 +38,26 @@ class DigiDonor extends Contract {
         try {
             const initialAssets = [
                 {
-                    
+                    reqID: "R1",
+                    recipient: "testuser",
+                    amount: 100,
+                    purpose: "meal",
+                    status: "open"
                 },
                 {
-                    
+                    reqID: "R2",
+                    recipient: "testuser",
+                    amount: 1000,
+                    purpose: "stationary",
+                    status: "open"
                 },
                 {
-                    
-                },
+                    reqID: "R3",
+                    recipient: "testuser",
+                    amount: 250,
+                    purpose: "meal",
+                    status: "open"
+                }
             ];
 
             // Iterate through assets and add them to the ledger
@@ -76,36 +90,84 @@ class DigiDonor extends Contract {
         return exists;
     }
 
-    // // OutletExists checks if outlet is already registered
-    // // called in RegisterUser function
-    // async OutletExists(outletID) {
-    //     // Check if the outlet is in outlets array
-    //     return outlets.outletID;
-    // }
+    // [TO-DO] DonorDonates Function to create tokens for a donor upon registration, based on a certain amount
 
-    /** 
-    // GetUserType Function to get the user type based on username
-    async GetUserType(ctx, username) {
+    async DonorDonates(username, amount){
+        // Calculate the number of tokens based on the amount (assuming each token is worth 10 units)
+        const numberOfTokens = Math.floor(amount / 10);
+
+        // Array to hold the tokens
+        const tokens = [];
+        
+        // Generate tokens
+        for (let i = 0; i < numberOfTokens; i++) {
+            // Generate a random token ID 
+            const tokenID = Math.floor(Math.random() * 1000000); 
+            
+            // Create the token object
+            const token = {
+                ID: tokenID,
+                donor: username,
+                amount: 10 // Q: won't we have to change this to another var, units?
+            };
+            
+            // Add the token to the array
+            tokens.push(token);
+        }
+        
+        return tokens;
+    }
+
+
+    // [TO-DO] BrowsePrevReq Function to list closed donation requests that have a token and donor associated to them
+
+    async BrowsePrevReq(ctx, username) {
         try {
-            const studentExists = await this.StudentExists(username);
-            const donorExists = await this.DonorExists(username);
+            // Call GetAllAssets to retrieve all assets from the world state
+            const allAssetsJSON = await this.GetAllAssets(ctx);
+            const allAssets = JSON.parse(allAssetsJSON);
 
-            if (studentExists) {
-                const userType = "student";
-                return userType
-            } else if (donorExists) {
-                const userType = "donor";
-                return userType
-            } else {
-                console.log("Invalid username.");
-            }
+            user_requests = []
+            // Filter all requests with "status": "open" and "recipient" : username
+            // Store resulting rewards in a user_requests array
+            user_requests = allAssets
+                .filter(
+                    (asset) => asset.status === "open" && asset.recipient === username // Q: students should be able to see both open and closed?
+                )
+                .map((request) => JSON.stringify(request));
+
+            // Return the filtered array
+            return user_requests;
         } catch (error) {
-            return `Error in getting user type: ${error.message}`;
+            return `Error listing previous requests: ${error.message}`;
         }
     }
-    */
 
-    // RaiseRequest Function to create a donation request from a student
+    // [TO-DO] ListRequests Function to list open donation requests
+
+    async ListRequests(ctx) {
+        requests = []
+               try {
+                   // Call GetAllAssets to retrieve all assets from the world state
+                   const allAssetsJSON = await this.GetAllAssets(ctx);
+                   const allAssets = JSON.parse(allAssetsJSON);
+       
+                   // Filter all assets with "status": "open" 
+                   // Store resulting rewards in the requests array
+                   requests = allAssets
+                       .filter(
+                           (asset) => asset.status === "open" 
+                       )
+                       .map((request) => JSON.stringify(request));
+       
+                   // Return the filtered requests array 
+                   return requests;
+               } catch (error) {
+                   return `Error listing requests: ${error.message}`;
+               }
+           }
+
+    // [TO-DO] RaiseRequest Function to create a donation request from a student
 
     async RaiseRequest(ctx, reqID, username, amount, purpose) {
         try{
@@ -120,19 +182,17 @@ class DigiDonor extends Contract {
         
             // Insert into the ledger
             await ctx.stub.putState(id, Buffer.from(JSON.stringify(request)));
-
             return JSON.stringify(request);
         } catch (error) {
             return `Error raising request: ${error.message}`;
         }
     }
 
-    // LoginUser Function log in users and donors based on values stored in dictionary
+    // [DONE] LoginUser Function log in users and donors based on values stored in dictionary
     
     async LoginUser(ctx, username, password, userType) {
         
         try {
-
             if (userType === "student") {
                 const studentExists = await this.StudentExists(username);
 
@@ -172,7 +232,7 @@ class DigiDonor extends Contract {
         }
     }
 
-    // RegisterUser Function to register users and donors based on userType
+    // [DONE] RegisterUser Function to register users and donors based on userType
 
     async RegisterUser(ctx, username, password, userType) {
         try {
@@ -296,7 +356,7 @@ class DigiDonor extends Contract {
     // called in ListRewards
     async GetAllAssets(ctx) {
         // Array of all assets in the ledger
-        const allResults = [];
+        const allResponses = [];
 
         // Range query with empty string for startKey and endKey does an open-ended query of all assets in the chaincode namespace.
         const iterator = await ctx.stub.getStateByRange("", "");
@@ -314,10 +374,10 @@ class DigiDonor extends Contract {
                 console.log(err);
                 record = strValue;
             }
-            allResults.push(record);
+            allResponses.push(record);
             result = await iterator.next();
         }
-        return JSON.stringify(allResults);
+        return JSON.stringify(allResponses);
     }
 
     // ListRewards retrives all assets from world state, filters the rewards into an array, and also returns it as JSON string, for a given registered university
@@ -575,6 +635,36 @@ class DigiDonor extends Contract {
             return `Error transferring reward: ${error.message}`;
         }
     }
+
+
+    // // OutletExists checks if outlet is already registered
+    // // called in RegisterUser function
+    // async OutletExists(outletID) {
+    //     // Check if the outlet is in outlets array
+    //     return outlets.outletID;
+    // }
+
+    /** 
+    // GetUserType Function to get the user type based on username
+    async GetUserType(ctx, username) {
+        try {
+            const studentExists = await this.StudentExists(username);
+            const donorExists = await this.DonorExists(username);
+
+            if (studentExists) {
+                const userType = "student";
+                return userType
+            } else if (donorExists) {
+                const userType = "donor";
+                return userType
+            } else {
+                console.log("Invalid username.");
+            }
+        } catch (error) {
+            return `Error in getting user type: ${error.message}`;
+        }
+    }
+    */
 }
 
 module.exports = DigiDonor;

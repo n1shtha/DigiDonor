@@ -1,22 +1,25 @@
-const express = require('express');
-const { Gateway, Wallets } = require('fabric-network');
-const path = require('path');
-const fs = require('fs');
-const bodyParser = require('body-parser');
-const cors = require('cors');
+const express = require("express");
+const { Gateway, Wallets } = require("fabric-network");
+const path = require("path");
+const fs = require("fs");
+const bodyParser = require("body-parser");
+const cors = require("cors");
 
-const registerUser = require('./registerUser.js');
-const loginUser = require('./loginUser.js');
+const registerUser = require("./registerUser.js");
+const loginUser = require("./loginUser.js");
+// const getAllAssets = require('./getAllAssets.js');
 // const getUserType = require('./getUserType.js');
+const raiseRequest = require("./raiseRequest.js");
 
 const app = express();
 app.use(cors());
 
 const PORT = 8080;
 
+// var jsonParser = bodyParser.json();
+// var textParser = app.use(bodyParser.text({ type: 'text/*' }));
 
-var jsonParser = bodyParser.json();
-var textParser = app.use(bodyParser.text({ type: 'text/*' }));
+app.use(bodyParser.json());
 
 // const ccpPath = path.resolve(__dirname, '..', 'connection.json');
 // const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
@@ -33,16 +36,15 @@ var textParser = app.use(bodyParser.text({ type: 'text/*' }));
 
 app.use(express.json());
 
-
-app.get('/', async (req, res) => {
+app.get("/", async (req, res) => {
     try {
-        await res.render('index', {});
+        await res.render("index", {});
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
-app.post('/signup', async (req, res) => {
+app.post("/signup", async (req, res) => {
     const { firstName, lastName, password } = req.body;
     try {
         await registerUser(firstName, lastName, password);
@@ -53,11 +55,34 @@ app.post('/signup', async (req, res) => {
     }
 });
 
-app.post('/login', async (req, res) => {
+app.post("/login", async (req, res) => {
     const { username, password, userType } = req.body;
     try {
         await loginUser(username, password, userType);
         //await contract.submitTransaction('registerUser', username, password, userType);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// [TO-DO]
+app.get("/allassets", async (req, res) => {
+    const username = req.body;
+    try {
+        const allAssetsData = await getAllAssets(username);
+        //await contract.submitTransaction('registerUser', username, password, userType);
+        res.json({ allAssetsData });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// [TO-DO]
+app.post("/newrequest", async (req, res) => {
+    const { reqID, username, amount, purpose } = req.body;
+    try {
+        await raiseRequest(reqID, username, amount, purpose);
         res.json({ success: true });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
