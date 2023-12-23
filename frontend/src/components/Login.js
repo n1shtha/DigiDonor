@@ -1,26 +1,25 @@
 import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
+import axios from "axios";
 import "../styles.css";
 
 function Login() {
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+  });
 
-    const [formData, setFormData] = useState({
-        username: '',
-        password: ''
-    });
+  // const usernameRef = useRef(null);
+  // const passwordRef = useRef(null);
 
-    // const usernameRef = useRef(null);
-    // const passwordRef = useRef(null);
+  const [message, setMessage] = useState("");
 
-    const [message, setMessage] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
-
-    /** 
+  /** 
     const handleNavigation = async () => 
     {
 
@@ -89,56 +88,62 @@ function Login() {
     }
     
     */
-    
-    const handleChange = (e) => {
-        const { name, value } = e.target; 
-        setFormData({ ...formData, [name]: value });
-    };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
-        const { username, password, userType } = formData;
-        // const username = `${firstName.toLowerCase()}${lastName.toLowerCase()}`;
-        // const username = (firstName.toLowerCase() + " " + lastName.toLowerCase());
-        // const username = formData.firstName + formData.lastName;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        try {
-            await axios.post('http://localhost:8080/login', { username, password, userType });
-            setMessage('User logged in successfully!');
-            setIsAuthenticated(true);
+    const { username, password, userType } = formData;
+    // const username = `${firstName.toLowerCase()}${lastName.toLowerCase()}`;
+    // const username = (firstName.toLowerCase() + " " + lastName.toLowerCase());
+    // const username = formData.firstName + formData.lastName;
 
-            if (userType === "student") {
-              navigate("/student");
-            } else if (userType === "donor") {
-              navigate("/donor");
-            } else {
-              navigate("/");
-            }
-            // handleNavigation();
-        } catch (error) {
-            if (error.response) {
-              // The request was made and the server responded with a status code
-              // that falls out of the range of 2xx
-              setMessage(error.response.data.error);
-            } else if (error.request) {
-              // The request was made but no response was received
-              setMessage('No response received from the server');
-            } else {
-              // Something happened in setting up the request that triggered an Error
-              setMessage('An error occurred while setting up the request');
-            }
-          }
-    };
+    try {
+      await axios.post("http://localhost:8080/login", {
+        username,
+        password,
+        userType,
+      });
+      setMessage("User logged in successfully!");
+      setIsAuthenticated(true);
+
+      if (userType === "student") {
+        navigate("/student");
+      } else if (userType === "donor") {
+        navigate("/donor");
+      } else {
+        navigate("/");
+      }
+      // handleNavigation();
+    } catch (error) {
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        setMessage(error.response.data.error);
+      } else if (error.request) {
+        // The request was made but no response was received
+        setMessage("No response received from the server");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setMessage("An error occurred while setting up the request");
+      }
+    }
+  };
 
   return (
     <div className="login template d-flex justify-content-center align-items-center vh-100 bg-light">
       <div class="jumbotron">
-      <h1 class="display-4">Welcome to DigiDonor!</h1>
-      <p class="lead">Secure and stress-free donation services</p>
-      <hr class="my-4"/>
-      <p>Built using Hyperledger Fabric</p>
-      <a class="btn btn-outline-secondary btn-lg" href="#" role="button">Learn more</a>
+        <h1 class="display-4">Welcome to DigiDonor!</h1>
+        <p class="lead">Secure and stress-free donation services</p>
+        <hr class="my-4" />
+        <p>Built using Hyperledger Fabric</p>
+        <a class="btn btn-outline-secondary btn-lg" href="#" role="button">
+          Learn more
+        </a>
       </div>
       <div className="form_container p-5 rounded bg-white ms-4">
         <form onSubmit={handleSubmit}>
@@ -168,32 +173,32 @@ function Login() {
             />
           </div>
           <div className="form-check form-check-inline mb-2">
-            <input 
-                className="form-check-input" 
-                type="radio" 
-                name="userType" 
-                id="student" 
-                defaultValue="student" 
-                checked={formData.userType === 'student'} 
-                onChange={handleChange}
+            <input
+              className="form-check-input"
+              type="radio"
+              name="userType"
+              id="student"
+              defaultValue="student"
+              checked={formData.userType === "student"}
+              onChange={handleChange}
             />
             <label className="form-check-label" htmlFor="student">
-                Student
+              Student
             </label>
           </div>
           <div className="form-check form-check-inline mb-2">
-              <input 
-                  className="form-check-input" 
-                  type="radio" 
-                  name="userType" 
-                  id="donor" 
-                  defaultValue="donor" 
-                  checked={formData.userType === 'donor'} 
-                  onChange={handleChange}
-              />
-              <label className="form-check-label" htmlFor="donor">
-                  Donor
-              </label>
+            <input
+              className="form-check-input"
+              type="radio"
+              name="userType"
+              id="donor"
+              defaultValue="donor"
+              checked={formData.userType === "donor"}
+              onChange={handleChange}
+            />
+            <label className="form-check-label" htmlFor="donor">
+              Donor
+            </label>
           </div>
           <div className="mb-2">
             <input
@@ -206,11 +211,15 @@ function Login() {
             </label>
           </div>
           <div className="d-grid">
-            <button type="submit" className="btn btn-outline-success">Login</button>
+            <button type="submit" className="btn btn-outline-success">
+              Login
+            </button>
           </div>
           <p className="text-end mt-2">
             <a>New user?</a>
-            <Link to="/signup" className="ms-2">Sign up</Link>
+            <Link to="/signup" className="ms-2">
+              Sign up
+            </Link>
           </p>
         </form>
       </div>
