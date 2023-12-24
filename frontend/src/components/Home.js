@@ -2,9 +2,7 @@ import React from "react";
 import "../styles.css";
 
 function Home() {
-    return{
-        
-    };
+  return <p>Test</p>;
 }
 
 export default Home;

@@ -44,6 +44,16 @@ async function registerOutlet(name, type) {
             return;
         }
 
+        // Check to see if we've already enrolled the admin user.
+        const adminIdentity = await wallet.get("admin");
+        if (!adminIdentity) {
+            console.log(
+                'An identity for the admin user "admin" does not exist in the wallet'
+            );
+            console.log("Run the enrollAdmin.js application before retrying");
+            return;
+        }
+
         // build a user object for authenticating with the CA
         const provider = wallet
             .getProviderRegistry()
