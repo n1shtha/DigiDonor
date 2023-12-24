@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import "../styles.css";
 
 function OutletRegistration() {
-    const history = useHistory();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
         type: ''
@@ -26,7 +26,7 @@ function OutletRegistration() {
             await axios.post('http://localhost:8080/outletregistration', { name, type });
             setMessage('Outlet registered successfully!');
             setIsRegistered(true);
-            history.push(`/${name}`); // Redirects to the outlet's dynamic page
+            navigate(`/${name}`); // Redirects to the outlet's dynamic page
         } catch (error) {
             if (error.response) {
                 // The request was made and the server responded with a status code
@@ -61,11 +61,11 @@ function OutletRegistration() {
             <form onSubmit={handleSubmit}>
               <h3 className="text-center">Register</h3>
               <div className="mb-2">
-                <label htmlFor="username">Name:</label>
+                <label htmlFor="name">Name:</label>
                 <input
                   type="text"
-                  name="Name"
-                  defaultValue={formData.username}
+                  name="name"
+                  defaultValue={formData.name}
                   onChange={handleChange}
                   placeholder="Enter Name"
                   className="form-control"
@@ -79,6 +79,7 @@ function OutletRegistration() {
                     onChange={handleChange}
                     className="form-control"
                 >
+                    <option value="">Select Store Type</option>
                     <option value="meals">Meals</option>
                     <option value="sports">Sports</option>
                     <option value="tuckshop">Tuckshop</option>
