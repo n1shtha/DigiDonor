@@ -89,6 +89,15 @@ app.post("/newrequest", async (req, res) => {
     }
 });
 
+app.post("/outletregistration", async (req, res) => {
+    const { name, type } = req.body;
+    try {
+        //const await registerOutlet(name, type);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 /** 
 
 app.get('/users', textParser, async (req, res) => {
