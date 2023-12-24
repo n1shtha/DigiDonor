@@ -7,23 +7,25 @@
 // importing modules from Fabric Contract API
 const { Contract } = require("fabric-contract-api");
 
+// Other imports
+
 // Creating necessary data structures
 
 // list of users
 var students = [
     {
-        "username": "",
-        "password": "",
-        "userType": "student"
-    }
+        username: "",
+        password: "",
+        userType: "student",
+    },
 ];
 // list of donors
 var donors = [
     {
-        "username": "",
-        "password": "",
-        "userType": "donor"
-    }
+        username: "",
+        password: "",
+        userType: "donor",
+    },
 ];
 // // list of outlets
 // var outlets = {};
@@ -36,13 +38,25 @@ class DigiDonor extends Contract {
         try {
             const initialAssets = [
                 {
-                    
+                    reqID: "R1",
+                    recipient: "testuser",
+                    amount: 100,
+                    purpose: "meal",
+                    status: "open",
                 },
                 {
-                    
+                    reqID: "R2",
+                    recipient: "testuser",
+                    amount: 1000,
+                    purpose: "stationary",
+                    status: "open",
                 },
                 {
-                    
+                    reqID: "R3",
+                    recipient: "testuser",
+                    amount: 250,
+                    purpose: "meal",
+                    status: "open",
                 },
             ];
 
@@ -50,7 +64,7 @@ class DigiDonor extends Contract {
             for (const asset of initialAssets) {
                 // Insert data into the world state
                 await ctx.stub.putState(
-                    asset.ID,
+                    asset.reqID,
                     Buffer.from(JSON.stringify(asset))
                 );
             }
@@ -64,7 +78,7 @@ class DigiDonor extends Contract {
     // called in RegisterUser function
     async StudentExists(ctx, username) {
         // Check if the user is in users dict
-        const exists = students.some(student => student.username === userID);
+        const exists = students.some((student) => student.username === userID);
         return exists;
     }
 
@@ -72,83 +86,190 @@ class DigiDonor extends Contract {
     // called in RegisterUser function
     async DonorExists(ctx, username) {
         // Check if the donor is in donors dict
-        return donors.donorID;
+        const exists = donors.some((donor) => donor.username === donorID);
+        return exists;
     }
 
-    // // OutletExists checks if outlet is already registered
-    // // called in RegisterUser function
-    // async OutletExists(outletID) {
-    //     // Check if the outlet is in outlets array
-    //     return outlets.outletID;
-    // }
+    // [TO-DO] DonorDonates Function to create tokens for a donor upon registration, based on a certain amount
 
+    async DonorDonates(username, amount) {
+        // Calculate the number of tokens based on the amount (assuming each token is worth 10 units)
+        const numberOfTokens = Math.floor(amount / 10);
 
+        // Array to hold the tokens
+        const tokens = [];
 
-    // LoginUser Function log in users and donors based on values stored in dictionary
-    
-    async LoginUser(ctx, username, password) {
+        // Generate tokens
+        for (let i = 0; i < numberOfTokens; i++) {
+            // Generate a random token ID
+            const tokenID = Math.floor(Math.random() * 1000000);
+
+            // Create the token object
+            const token = {
+                ID: tokenID,
+                donor: username,
+                amount: 10, // Q: won't we have to change this to another var, units?
+            };
+
+            // Add the token to the array
+            tokens.push(token);
+        }
+
+        return tokens;
+    }
+
+    // [TO-DO] BrowsePrevReq Function to list closed donation requests that have a token and donor associated to them
+
+    async BrowsePrevReq(ctx, username) {
         try {
-            const studentExists = await this.StudentExists(username);
-            const donorExists = await this.DonorExists(username);
+            // Call GetAllAssets to retrieve all assets from the world state
+            const allAssetsJSON = await this.GetAllAssets(ctx);
+            const allAssets = JSON.parse(allAssetsJSON);
 
-            if (studentExists) {
-                // Check if login details are correct
-                const studentAuthenticated = students.find(student => student.username === username && student.password === password);
+            let user_requests = [];
+            // Filter all requests with "status": "open" and "recipient" : username
+            // Store resulting rewards in a user_requests array
+            user_requests = allAssets.filter(
+                (asset) =>
+                    asset.status === "open" && asset.recipient === username // Q: students should be able to see both open and closed?
+            );
+            //.map((request) => JSON.stringify(request));
 
-                if (studentAuthenticated) {
-                    console.log("Student authentication successful.");
-                    var userType = studentAuthenticated.userType;
-                    // then we push student dashboard [TO-DO]
+            // Return the filtered array
+            return user_requests;
+        } catch (error) {
+            return `Error listing previous requests: ${error.message}`;
+        }
+    }
+
+    // [TO-DO] ListRequests Function to list open donation requests
+
+    async ListRequests(ctx) {
+        requests = [];
+        try {
+            // Call GetAllAssets to retrieve all assets from the world state
+            const allAssetsJSON = await this.GetAllAssets(ctx);
+            const allAssets = JSON.parse(allAssetsJSON);
+
+            // Filter all assets with "status": "open"
+            // Store resulting rewards in the requests array
+            requests = allAssets
+                .filter((asset) => asset.status === "open")
+                .map((request) => JSON.stringify(request));
+
+            // Return the filtered requests array
+            return requests;
+        } catch (error) {
+            return `Error listing requests: ${error.message}`;
+        }
+    }
+
+    // [DONE] RaiseRequest Function to create a donation request from a student
+
+    async RaiseRequest(ctx, reqID, username, amount, purpose) {
+        try {
+            // Create the request object
+            const request = {
+                reqID: reqID,
+                recipient: username,
+                amount: amount,
+                purpose: purpose,
+                status: "open",
+            };
+
+            // Insert into the ledger
+            await ctx.stub.putState(
+                reqID,
+                Buffer.from(JSON.stringify(request))
+            );
+            return JSON.stringify(request);
+        } catch (error) {
+            return `Error raising request: ${error.message}`;
+        }
+    }
+
+    // [DONE] LoginUser Function log in users and donors based on values stored in dictionary
+
+    async LoginUser(ctx, username, password, userType) {
+        try {
+            if (userType === "student") {
+                const studentExists = await this.StudentExists(username);
+
+                if (studentExists) {
+                    // Check if login details are correct
+                    const studentAuthenticated = students.find(
+                        (student) =>
+                            student.username === username &&
+                            student.password === password
+                    );
+
+                    if (studentAuthenticated) {
+                        console.log("Student authentication successful.");
+                        // then we push student dashboard [TO-DO]
+                    } else {
+                        console.log(
+                            "Student authentication failed. Please try again"
+                        );
+                    }
                 } else {
-                    console.log("Student authentication failed. Please try again");
-                }   
-            } else if (donorExists) {
-                // Check if login details are correct
-                const donorAuthenticated = donors.find(donor => donor.username === username && donor.password === password);
+                    console.log("Student record doesn't exist.");
+                }
+            } else if (userType === "donor") {
+                const donorExists = await this.DonorExists(username);
 
-                if (donorAuthenticated) {
-                    console.log("Donor authentication successful."); 
-                    var userType = donorAuthenticated.userType;
-                    // then we push donor dashboard [TO-DO]
+                if (donorExists) {
+                    // Check if login details are correct
+                    const donorAuthenticated = donors.find(
+                        (donor) =>
+                            donor.username === username &&
+                            donor.password === password
+                    );
+
+                    if (donorAuthenticated) {
+                        console.log("Donor authentication successful.");
+                        // then we push student dashboard [TO-DO]
+                    } else {
+                        console.log(
+                            "Donor authentication failed. Please try again"
+                        );
+                    }
                 } else {
-                    console.log("Donor authentication failed. Please try again");
+                    console.log("Donor record doesn't exist.");
                 }
             }
         } catch (error) {
             return `Error authenticating user: ${error.message}`;
         }
     }
-    
-    // RegisterUser Function to register users and donors based on userType
+
+    // [DONE] RegisterUser Function to register users and donors based on userType
 
     async RegisterUser(ctx, username, password, userType) {
-        let userExists;
-        
-        if (userType === "student"){
-            // Check if the student already exists 
-            userExists = await this.StudentExists(ctx, username);
+        try {
+            if (userType === "student") {
+                // Check if the student already exists
+                const studentExists = await this.StudentExists(username);
 
-                if (!studentExists){
+                if (!studentExists) {
                     // Register the student
                     const newStudent = {
-                        "username": username,
-                        "password": password,
-                        "userType": userType
+                        username: username,
+                        password: password,
+                        userType: userType,
                     };
 
                     students.push(newStudent);
                 }
-                
-            } else if (userType === 'donor'){
-                // Check if the donor already exists 
+            } else if (userType === "donor") {
+                // Check if the donor already exists
                 const donorExists = await this.DonorExists(username);
 
-                if (!donorExists){
+                if (!donorExists) {
                     // Register the student
                     const newDonor = {
-                        "username": username,
-                        "password": password,
-                        "userType": userType
+                        username: username,
+                        password: password,
+                        userType: userType,
                     };
 
                     donors.push(newDonor);
@@ -156,10 +277,12 @@ class DigiDonor extends Contract {
             }
             const exists = studentExists || donorExists;
 
-        // Throw a new error if the student/donor is already registered
-        if (userExists) {
-            throw new Error(`A user of ${userType} type with username ${username} already exists.`);
-        }
+            // Throw a new error if the student/donor is already registered
+            if (exists) {
+                throw new Error(
+                    `A user of ${userType} type with username ${username} already exists.`
+                );
+            }
 
             // Return ! of exists (if user does not exist, gives a "true" so the client function can go ahead)
             return !exists;
@@ -244,7 +367,7 @@ class DigiDonor extends Contract {
     // called in ListRewards
     async GetAllAssets(ctx) {
         // Array of all assets in the ledger
-        const allResults = [];
+        const allResponses = [];
 
         // Range query with empty string for startKey and endKey does an open-ended query of all assets in the chaincode namespace.
         const iterator = await ctx.stub.getStateByRange("", "");
@@ -262,10 +385,10 @@ class DigiDonor extends Contract {
                 console.log(err);
                 record = strValue;
             }
-            allResults.push(record);
+            allResponses.push(record);
             result = await iterator.next();
         }
-        return JSON.stringify(allResults);
+        return JSON.stringify(allResponses);
     }
 
     // ListRewards retrives all assets from world state, filters the rewards into an array, and also returns it as JSON string, for a given registered university
@@ -523,6 +646,35 @@ class DigiDonor extends Contract {
             return `Error transferring reward: ${error.message}`;
         }
     }
+
+    // // OutletExists checks if outlet is already registered
+    // // called in RegisterUser function
+    // async OutletExists(outletID) {
+    //     // Check if the outlet is in outlets array
+    //     return outlets.outletID;
+    // }
+
+    /** 
+    // GetUserType Function to get the user type based on username
+    async GetUserType(ctx, username) {
+        try {
+            const studentExists = await this.StudentExists(username);
+            const donorExists = await this.DonorExists(username);
+
+            if (studentExists) {
+                const userType = "student";
+                return userType
+            } else if (donorExists) {
+                const userType = "donor";
+                return userType
+            } else {
+                console.log("Invalid username.");
+            }
+        } catch (error) {
+            return `Error in getting user type: ${error.message}`;
+        }
+    }
+    */
 }
 
 module.exports = DigiDonor;

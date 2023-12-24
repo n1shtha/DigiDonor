@@ -11,7 +11,7 @@ const FabricCAServices = require("fabric-ca-client");
 const fs = require("fs");
 const path = require("path");
 
-async function loginUser(username, password, userType) {
+async function getUserType(username) {
     try {
         // load the network configuration
         const ccpPath = path.resolve(
@@ -39,7 +39,7 @@ async function loginUser(username, password, userType) {
         const userIdentity = await wallet.get(username);
         if (!userIdentity) {
             console.log(
-                `An identity for the user ${username} does not exist in the wallet, please register first.`
+                `An identity for the user ${username} does not exist in the wallet, please register first so that you can get the user type.`
             );
             return;
         }
@@ -59,24 +59,27 @@ async function loginUser(username, password, userType) {
         const contract = network.getContract("DigiDonor");
 
         // Register the user such that it reflects in the chaincode
-        const loginUserResponse = await contract.submitTransaction(
-            "LoginUser",
-            username,
-            password,
-            userType
-        );
+        const getUserTypeResponse = await contract.evaluateTransaction("GetUserType", username);
+        console.log(getUserTypeResponse);
 
-        if (loginUserResponse) {
-            console.log(`Successfully logged in user ${username}.`);
+        if (getUserTypeResponse) {
+            console.log(
+                `Successfully got user type for ${username}.`
+            );
+
+            return getUserTypeResponse;
+
         } else {
-            console.log(loginUserResponse.toString());
+            console.log(getUserTypeResponse.toString());
         }
         // Disconnect from the gateway after executing registration
         await gateway.disconnect();
+
     } catch (error) {
-        console.error(`Failed to login user ${username}: ${error}`);
+        console.error(`Failed to get user type for ${username}: ${error}`);
         process.exit(1);
     }
-}
+} 
 
-module.exports = loginUser;
+
+module.exports = getUserType;

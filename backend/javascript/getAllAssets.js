@@ -11,7 +11,7 @@ const FabricCAServices = require("fabric-ca-client");
 const fs = require("fs");
 const path = require("path");
 
-async function loginUser(username, password, userType) {
+async function getAllAssets(username) {
     try {
         // load the network configuration
         const ccpPath = path.resolve(
@@ -25,6 +25,7 @@ async function loginUser(username, password, userType) {
             "org1.example.com",
             "connection-org1.json"
         );
+
         const ccp = JSON.parse(fs.readFileSync(ccpPath, "utf8"));
 
         // Create a new CA client for interacting with the CA.
@@ -33,13 +34,14 @@ async function loginUser(username, password, userType) {
 
         // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), "wallet");
+        // console.log(walletPath);
         const wallet = await Wallets.newFileSystemWallet(walletPath);
 
         // Check to see if we've enrolled the user.
         const userIdentity = await wallet.get(username);
         if (!userIdentity) {
             console.log(
-                `An identity for the user ${username} does not exist in the wallet, please register first.`
+                `An identity for the user ${username} does not exist in the wallet, please register first so that you can get requests.`
             );
             return;
         }
@@ -59,24 +61,17 @@ async function loginUser(username, password, userType) {
         const contract = network.getContract("DigiDonor");
 
         // Register the user such that it reflects in the chaincode
-        const loginUserResponse = await contract.submitTransaction(
-            "LoginUser",
-            username,
-            password,
-            userType
+        const getAllAssetsResponse = await contract.evaluateTransaction(
+            "GetAllAssets"
         );
+        console.log(`Listing all assets`, getAllAssetsResponse.toString());
 
-        if (loginUserResponse) {
-            console.log(`Successfully logged in user ${username}.`);
-        } else {
-            console.log(loginUserResponse.toString());
-        }
         // Disconnect from the gateway after executing registration
         await gateway.disconnect();
     } catch (error) {
-        console.error(`Failed to login user ${username}: ${error}`);
+        console.error(`Failed to list all assets: ${error}`);
         process.exit(1);
     }
 }
 
-module.exports = loginUser;
+module.exports = getAllAssets;

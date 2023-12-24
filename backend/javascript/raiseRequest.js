@@ -11,7 +11,14 @@ const FabricCAServices = require("fabric-ca-client");
 const fs = require("fs");
 const path = require("path");
 
-async function loginUser(username, password, userType) {
+// // modifying command line arguments allowed
+// let userID, userType;
+// process.argv.forEach(function (val, index, array) {
+//     if (index === 2) userID = val;
+//     if (index === 3) userType = val; // 'user', 'university', or 'outlet'
+// });
+
+async function raiseRequest(reqID, username, amount, purpose) {
     try {
         // load the network configuration
         const ccpPath = path.resolve(
@@ -39,7 +46,7 @@ async function loginUser(username, password, userType) {
         const userIdentity = await wallet.get(username);
         if (!userIdentity) {
             console.log(
-                `An identity for the user ${username} does not exist in the wallet, please register first.`
+                `An identity for the user ${username} does not exist in the wallet, please register first so that you can raise a request.`
             );
             return;
         }
@@ -59,24 +66,25 @@ async function loginUser(username, password, userType) {
         const contract = network.getContract("DigiDonor");
 
         // Register the user such that it reflects in the chaincode
-        const loginUserResponse = await contract.submitTransaction(
-            "LoginUser",
+        const raiseRequestResponse = await contract.submitTransaction(
+            "RaiseRequest",
+            reqID,
             username,
-            password,
-            userType
+            amount,
+            purpose
         );
 
-        if (loginUserResponse) {
-            console.log(`Successfully logged in user ${username}.`);
+        if (raiseRequestResponse) {
+            console.log(`Successfully raised request ${reqID} by ${username}.`);
         } else {
-            console.log(loginUserResponse.toString());
+            console.log(raiseRequestResponse.toString());
         }
         // Disconnect from the gateway after executing registration
         await gateway.disconnect();
     } catch (error) {
-        console.error(`Failed to login user ${username}: ${error}`);
+        console.error(`Failed to raise request ${reqID}: ${error}`);
         process.exit(1);
     }
 }
 
-module.exports = loginUser;
+module.exports = raiseRequest;

@@ -108,7 +108,12 @@ async function registerUser(firstName, lastName, password, userType) {
         const contract = network.getContract("DigiDonor");
 
         // Register the user such that it reflects in the chaincode
-        const registerUserResponse = await contract.submitTransaction( "RegisterUser", username, password, userType);
+        const registerUserResponse = await contract.submitTransaction(
+            "RegisterUser",
+            username,
+            password,
+            userType
+        );
 
         if (registerUserResponse) {
             console.log(
@@ -119,7 +124,6 @@ async function registerUser(firstName, lastName, password, userType) {
         }
         // Disconnect from the gateway after executing registration
         await gateway.disconnect();
-
     } catch (error) {
         console.error(`Failed to register user ${username}: ${error}`);
         process.exit(1);
