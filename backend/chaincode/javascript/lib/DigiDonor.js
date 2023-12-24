@@ -83,7 +83,9 @@ class DigiDonor extends Contract {
     // called in RegisterUser function
     async StudentExists(username) {
         // Check if the user is in users dict
-        const exists = students.some((student) => student.username === username);
+        const exists = students.some(
+            (student) => student.username === username
+        );
         return exists;
     }
 
@@ -292,7 +294,7 @@ class DigiDonor extends Contract {
             // Return ! of exists (if user does not exist, gives a "true" so the client function can go ahead)
             return !exists;
         } catch (error) {
-            return (`Error registering user: ${error.message}`);
+            return `Error registering user: ${error.message}`;
         }
     }
 
@@ -313,18 +315,20 @@ class DigiDonor extends Contract {
             if (!outletExists) {
                 // Register the outlet
                 const newOutlet = {
-                    name: outletName,
-                    type: outletType,
+                    name: name,
+                    type: type,
                 };
 
                 outlets.push(newOutlet);
             }
-    
+
             // Throw a new error if the outlet is already registered
             if (outletExists) {
-                throw new Error(`An outlet with the name ${name} already exists.`);
+                throw new Error(
+                    `An outlet with the name ${name} already exists.`
+                );
             }
-    
+
             // Return true if the outlet doesn't exist (successful registration)
             return !outletExists;
         } catch (error) {
