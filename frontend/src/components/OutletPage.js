@@ -30,6 +30,7 @@ function OutletPage() {
                     <input
                     type="text"
                     name="username"
+                    placeholder="Enter your username"
                     className="form-control"
                     />
                 </div>
