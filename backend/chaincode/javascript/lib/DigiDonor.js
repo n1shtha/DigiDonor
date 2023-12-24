@@ -64,7 +64,7 @@ class DigiDonor extends Contract {
             for (const asset of initialAssets) {
                 // Insert data into the world state
                 await ctx.stub.putState(
-                    asset.ID,
+                    asset.reqID,
                     Buffer.from(JSON.stringify(asset))
                 );
             }
@@ -126,15 +126,14 @@ class DigiDonor extends Contract {
             const allAssetsJSON = await this.GetAllAssets(ctx);
             const allAssets = JSON.parse(allAssetsJSON);
 
-            user_requests = [];
+            let user_requests = [];
             // Filter all requests with "status": "open" and "recipient" : username
             // Store resulting rewards in a user_requests array
-            user_requests = allAssets
-                .filter(
-                    (asset) =>
-                        asset.status === "open" && asset.recipient === username // Q: students should be able to see both open and closed?
-                )
-                .map((request) => JSON.stringify(request));
+            user_requests = allAssets.filter(
+                (asset) =>
+                    asset.status === "open" && asset.recipient === username // Q: students should be able to see both open and closed?
+            );
+            //.map((request) => JSON.stringify(request));
 
             // Return the filtered array
             return user_requests;
@@ -165,7 +164,7 @@ class DigiDonor extends Contract {
         }
     }
 
-    // [TO-DO] RaiseRequest Function to create a donation request from a student
+    // [DONE] RaiseRequest Function to create a donation request from a student
 
     async RaiseRequest(ctx, reqID, username, amount, purpose) {
         try {
@@ -179,7 +178,10 @@ class DigiDonor extends Contract {
             };
 
             // Insert into the ledger
-            await ctx.stub.putState(id, Buffer.from(JSON.stringify(request)));
+            await ctx.stub.putState(
+                reqID,
+                Buffer.from(JSON.stringify(request))
+            );
             return JSON.stringify(request);
         } catch (error) {
             return `Error raising request: ${error.message}`;

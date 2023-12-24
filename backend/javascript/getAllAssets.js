@@ -25,6 +25,7 @@ async function getAllAssets(username) {
             "org1.example.com",
             "connection-org1.json"
         );
+
         const ccp = JSON.parse(fs.readFileSync(ccpPath, "utf8"));
 
         // Create a new CA client for interacting with the CA.
@@ -33,6 +34,7 @@ async function getAllAssets(username) {
 
         // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), "wallet");
+        // console.log(walletPath);
         const wallet = await Wallets.newFileSystemWallet(walletPath);
 
         // Check to see if we've enrolled the user.
