@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles.css";
 
@@ -27,31 +28,9 @@ function StudentHome() {
 
   const [message, setMessage] = useState("");
 
-  const handleFetch = async (e) => {
-    e.preventDefault();
+  const [tableData, setTableData] = useState([]);
 
-    const username = "testuser"; // Q: we'll have to figure out a way to keep username for the session
-    console.log(username);
-
-    try {
-      await axios.post("http://localhost:8080/allassets", { username });
-      setMessage("Data fetched successfully!");
-    } catch (error) {
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        setMessage(error.response.data.error);
-      } else if (error.request) {
-        // The request was made but no response was received
-        setMessage("No response received from the server");
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        setMessage("An error occurred while setting up the request");
-      }
-    }
-  };
-
-  // const username = "admin"; // Q: how will we send username across, we aren't querying for that + this is leading to the same "does not exist" error
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     //e.preventDefault();
@@ -60,10 +39,8 @@ function StudentHome() {
     // setFormData({ ...formData, [name]: value });
     setFormData({
       ...formData,
-      [name]: name === "amount" ? parseInt(value, 10) : value,
+      [name]: name === "amount" ? parseInt(value, 10) : value, // Q: check if this is parsing properly, idts
     });
-    // console.log(formData.amount);
-    // console.log(formData.purpose);
     console.log(formData.reqID);
   };
 
@@ -95,6 +72,40 @@ function StudentHome() {
     }
   };
 
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    localStorage.removeItem("loggedInUsername");
+    navigate("/login");
+  };
+
+  const handleFetch = async (e) => {
+    e.preventDefault();
+
+    const username = loggedInUser;
+
+    try {
+      const previousRequestsResponse = await axios.post(
+        "http://localhost:8080/previousrequests",
+        { username }
+      );
+
+      setTableData(previousRequestsResponse.data);
+      setMessage("Data fetched successfully!");
+    } catch (error) {
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        setMessage(error.response.data.error);
+      } else if (error.request) {
+        // The request was made but no response was received
+        setMessage("No response received from the server");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setMessage("An error occurred while setting up the request");
+      }
+    }
+  };
+
   return (
     <div className="bg-light">
       <nav className="navbar navbar-light bg-dark">
@@ -102,9 +113,14 @@ function StudentHome() {
           DigiDonor
         </span>
         {loggedInUser ? (
-          <span className="navbar-text text-secondary me-4">
-            Welcome, {loggedInUser}!
-          </span>
+          <div>
+            <span className="navbar-text text-secondary me-4">
+              Welcome, {loggedInUser}!
+            </span>
+            <span className="btn btn-danger me-4" onClick={handleLogout}>
+              Logout
+            </span>
+          </div>
         ) : (
           <span className="navbar-brand ms-4 mb-0 h1 text-secondary">
             Please log in to access the dashboard.
@@ -119,35 +135,23 @@ function StudentHome() {
               <table class="table">
                 <thead>
                   <tr>
-                    <th scope="col">#</th>
                     <th scope="col">ID</th>
+                    <th scope="col">Recipient</th>
                     <th scope="col">Amount</th>
-                    <th scope="col">Type</th>
+                    <th scope="col">Purpose</th>
                     <th scope="col">Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
-                    <td>Open</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">2</th>
-                    <td>Jacob</td>
-                    <td>Thornton</td>
-                    <td>@fat</td>
-                    <td>Open</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">3</th>
-                    <td>hi</td>
-                    <td>test</td>
-                    <td>@twitter</td>
-                    <td>Open</td>
-                  </tr>
+                  {tableData.map((request) => (
+                    <tr key={request.reqID}>
+                      <td>{request.reqID}</td>
+                      <td>{request.recipient}</td>
+                      <td>{request.amount}</td>
+                      <td>{request.purpose}</td>
+                      <td>{request.status}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
               <button

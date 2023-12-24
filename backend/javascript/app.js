@@ -8,7 +8,7 @@ const cors = require("cors");
 const registerUser = require("./registerUser.js");
 const loginUser = require("./loginUser.js");
 const getAllAssets = require("./getAllAssets.js");
-// const getUserType = require('./getUserType.js');
+const browsePrevReq = require("./browsePrevReq.js");
 const raiseRequest = require("./raiseRequest.js");
 
 const app = express();
@@ -20,19 +20,6 @@ const PORT = 8080;
 // var textParser = app.use(bodyParser.text({ type: 'text/*' }));
 
 app.use(bodyParser.json());
-
-// const ccpPath = path.resolve(__dirname, '..', 'connection.json');
-// const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
-// const ccp = JSON.parse(ccpJSON);
-
-// const gateway = new Gateway();
-// await gateway.connect(ccp, {
-//     wallet: await Wallets.newFileSystemWallet('./wallet'),
-//     identity: 'user1',
-//     discovery: { enabled: true, asLocalhost: true }
-// });
-
-// const network = await gateway.getNetwork('mychannel');
 
 app.use(express.json());
 
@@ -66,7 +53,6 @@ app.post("/login", async (req, res) => {
     }
 });
 
-// [TO-DO]
 app.post("/allassets", async (req, res) => {
     const { username } = req.body;
     try {
@@ -78,7 +64,17 @@ app.post("/allassets", async (req, res) => {
     }
 });
 
-// [TO-DO]
+app.post("/previousrequests", async (req, res) => {
+    const { username } = req.body;
+    try {
+        const prevRequestsData = await browsePrevReq(username);
+        // console.log(JSON.parse(prevRequestsData)); Q: should we parse or not?
+        res.json(JSON.parse(prevRequestsData));
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 app.post("/newrequest", async (req, res) => {
     const { reqID, username, amount, purpose } = req.body;
     try {
