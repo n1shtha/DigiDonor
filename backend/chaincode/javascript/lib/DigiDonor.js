@@ -28,7 +28,12 @@ var donors = [
     },
 ];
 // // list of outlets
-// var outlets = {};
+var outlets = [
+    {
+        name: "",
+        type: "",
+    },
+];
 
 // extending the Fabric Contract
 class DigiDonor extends Contract {
@@ -76,17 +81,19 @@ class DigiDonor extends Contract {
 
     // StudentExists checks if student is already registered
     // called in RegisterUser function
-    async StudentExists(userID) {
+    async StudentExists(username) {
         // Check if the user is in users dict
-        const exists = students.some((student) => student.username === userID);
+        const exists = students.some(
+            (student) => student.username === username
+        );
         return exists;
     }
 
     // DonorExists checks if donor is already registered
     // called in RegisterUser function
-    async DonorExists(donorID) {
+    async DonorExists(username) {
         // Check if the donor is in donors dict
-        const exists = donors.some((donor) => donor.username === donorID);
+        const exists = donors.some((donor) => donor.username === username);
         return exists;
     }
 
@@ -291,29 +298,41 @@ class DigiDonor extends Contract {
         }
     }
 
-    // RegisterOutlet function
+    // StudentExists checks if student is already registered
+    // called in RegisterOutlet function
+    async OutletExists(ctx, name) {
+        // Check if the user is in users dict
+        const exists = outlets.some((outlet) => outlet.name === name);
+        return exists;
+    }
 
-    async RegisterOutlet(ctx, outletID, password) {
+    // RegisterOutlet function
+    async RegisterOutlet(ctx, name, type) {
         try {
             // Check if the user already exists (either as user or as an outlet or as an university)
-            const outletExists = await this.OutletExists(outletID);
+            const outletExists = await this.OutletExists(name);
 
-            const exists = outletExists;
+            if (!outletExists) {
+                // Register the outlet
+                const newOutlet = {
+                    name: name,
+                    type: type,
+                };
 
-            // Throw a new error if the user/outlet/university already exists
-            if (exists) {
+                outlets.push(newOutlet);
+            }
+
+            // Throw a new error if the outlet is already registered
+            if (outletExists) {
                 throw new Error(
-                    `An outlet with name ${outletID} already exists.`
+                    `An outlet with the name ${name} already exists.`
                 );
             }
 
-            // Register the outlet
-            outlets[outletID] = password;
-
-            // Return ! of exists (if outlet does not exist, gives a "true" so the client function can go ahead)
-            return !exists;
+            // Return true if the outlet doesn't exist (successful registration)
+            return !outletExists;
         } catch (error) {
-            return `Error Registering outlet: ${error.message}`;
+            throw new Error(`Error registering outlet: ${error.message}`);
         }
     }
 

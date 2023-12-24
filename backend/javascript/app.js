@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 
 const registerUser = require("./registerUser.js");
+const registerOutlet = require("./registerOutlet.js");
 const loginUser = require("./loginUser.js");
 const getAllAssets = require("./getAllAssets.js");
 const browsePrevReq = require("./browsePrevReq.js");
@@ -13,14 +14,12 @@ const raiseRequest = require("./raiseRequest.js");
 
 const app = express();
 app.use(cors());
-
 const PORT = 8080;
 
 // var jsonParser = bodyParser.json();
 // var textParser = app.use(bodyParser.text({ type: 'text/*' }));
 
 app.use(bodyParser.json());
-
 app.use(express.json());
 
 app.get("/", async (req, res) => {
@@ -47,9 +46,14 @@ app.post("/login", async (req, res) => {
     try {
         await loginUser(username, password, userType);
         //await contract.submitTransaction('registerUser', username, password, userType);
-        res.json({ success: true });
+
+        if (result) {
+            res.send({ message: "User registered successfully" });
+        } else {
+            res.status(409).send({ message: "User already exists" });
+        }
     } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+        res.status(500).send({ message: error.toString() });
     }
 });
 
@@ -86,6 +90,15 @@ app.post("/newrequest", async (req, res) => {
     }
 });
 
+app.post("/outletregistration", async (req, res) => {
+    const { name, type } = req.body;
+    try {
+        await registerOutlet(name, type);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 /** 
 
 app.get('/users', textParser, async (req, res) => {
