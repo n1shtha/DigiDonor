@@ -11,6 +11,9 @@ const loginUser = require("./loginUser.js");
 const getAllAssets = require("./getAllAssets.js");
 const browsePrevReq = require("./browsePrevReq.js");
 const raiseRequest = require("./raiseRequest.js");
+const generateToken = require("./generateToken.js");
+const listOpenRequests = require("./listOpenRequests.js");
+const browsePrevDon = require("./browsePrevDon.js");
 
 const app = express();
 app.use(cors());
@@ -46,12 +49,7 @@ app.post("/login", async (req, res) => {
     try {
         await loginUser(username, password, userType);
         //await contract.submitTransaction('registerUser', username, password, userType);
-
-        if (result) {
-            res.send({ message: "User registered successfully" });
-        } else {
-            res.status(409).send({ message: "User already exists" });
-        }
+        res.json({ success: true });
     } catch (error) {
         res.status(500).send({ message: error.toString() });
     }
@@ -79,6 +77,28 @@ app.post("/previousrequests", async (req, res) => {
     }
 });
 
+app.post("/allopenrequests", async (req, res) => {
+    const { username } = req.body;
+    try {
+        const allOpenRequestsData = await listOpenRequests(username);
+        // console.log(JSON.parse(prevRequestsData)); Q: should we parse or not?
+        res.json(JSON.parse(allOpenRequestsData));
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post("/previousdonations", async (req, res) => {
+    const { username } = req.body;
+    try {
+        const prevDonationsData = await browsePrevDon(username);
+        // console.log(JSON.parse(prevRequestsData)); Q: should we parse or not?
+        res.json(JSON.parse(prevDonationsData));
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 app.post("/newrequest", async (req, res) => {
     const { reqID, username, amount, purpose } = req.body;
     try {
@@ -95,6 +115,16 @@ app.post("/outletregistration", async (req, res) => {
     try {
         await registerOutlet(name, type);
         res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post("/generatetoken", async (req, res) => {
+    const { username, amount } = req.body;
+    try {
+        const generatedTokens = await generateToken(username, amount);
+        res.json({ generatedTokens });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
