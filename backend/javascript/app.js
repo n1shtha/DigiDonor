@@ -82,7 +82,6 @@ app.post("/allopenrequests", async (req, res) => {
     const { username } = req.body;
     try {
         const allOpenRequestsData = await listOpenRequests(username);
-        // console.log(JSON.parse(prevRequestsData)); Q: should we parse or not?
         res.json(JSON.parse(allOpenRequestsData));
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
@@ -133,10 +132,11 @@ app.post("/generatetoken", async (req, res) => {
 
 app.post("/pledge", async (req, res) => {
     const { pledge, username } = req.body;
-    console.log(pledge);
+    console.log(`pledge after being sent to server:`, pledge); // this works we know
     try {
         const pledgeResponse = await genPledge(pledge, username);
         res.json(JSON.parse(pledgeResponse));
+        // res.json({ pledgeResponse });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }

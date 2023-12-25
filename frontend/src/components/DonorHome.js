@@ -94,7 +94,7 @@ function DonorHome() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log(`Effect of change - Name: ${name}, Value: ${value}`);
+    //console.log(`Effect of change - Name: ${name}, Value: ${value}`);
     setFormData({
       ...formData,
       [name]: name === "amount" ? parseInt(value) : value,
@@ -111,7 +111,7 @@ function DonorHome() {
         "http://localhost:8080/allopenrequests",
         { username }
       );
-      console.log(allOpenRequestsResponse.data);
+      // console.log(`data:`, allOpenRequestsResponse.data);
       setOpenTableData(allOpenRequestsResponse.data);
       setMessage("Data fetched successfully!");
     } catch (error) {
@@ -155,7 +155,7 @@ function DonorHome() {
     }
   };
 
-  console.log(`formdata:`, formData);
+  // console.log(`formdata:`, formData);
   const handleLogout = async (e) => {
     e.preventDefault();
     localStorage.removeItem("loggedInUsername");
@@ -165,14 +165,15 @@ function DonorHome() {
   // console.log(`tokenbal:`, tokenBalance);
 
   const sendPledgeToServer = async (pledge) => {
+    console.log(`pledge when it's sending to server`, pledge); // works
     const username = loggedInUser;
     try {
-      const response = await axios.post(
-        "http://localhost:8080/pledge",
+      const response = await axios.post("http://localhost:8080/pledge", {
+        // check if this works
         pledge,
-        username
-      );
-      console.log("Pledge sent successfully:", response.data);
+        username,
+      });
+      console.log("Pledge sent successfully:", response.data); // response.data = true/false
     } catch (error) {
       console.error("Error sending pledge:", error);
     }
@@ -267,7 +268,6 @@ function DonorHome() {
               <table class="table">
                 <thead>
                   <tr>
-                    <th scope="col">#</th>
                     <th scope="col">ID</th>
                     <th scope="col">Amount</th>
                     <th scope="col">Type</th>

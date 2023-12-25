@@ -47,6 +47,9 @@ class DigiDonor extends Contract {
                     recipient: "testuser",
                     amount: 100,
                     purpose: "meal",
+                    donor: "",
+                    pledgeID: "",
+                    tokensPledged: [],
                     status: "open",
                 },
                 {
@@ -54,6 +57,9 @@ class DigiDonor extends Contract {
                     recipient: "testuser",
                     amount: 1000,
                     purpose: "stationary",
+                    donor: "",
+                    pledgeID: "",
+                    tokensPledged: [],
                     status: "open",
                 },
                 {
@@ -61,6 +67,9 @@ class DigiDonor extends Contract {
                     recipient: "testuser",
                     amount: 250,
                     purpose: "meal",
+                    donor: "",
+                    pledgeID: "",
+                    tokensPledged: [],
                     status: "open",
                 },
             ];
@@ -374,6 +383,16 @@ class DigiDonor extends Contract {
             const reqBytes = await ctx.stub.getState(pledge.reqID);
             const request = JSON.parse(reqBytes.toString());
 
+            console.log(`request before update:`, request);
+
+            request.donor = pledge.username;
+            request.pledgeID = pledge.pledgeID;
+            request.tokensPledged = pledge.pledgedTokens;
+            request.status = "pledged";
+
+            console.log(`request after update:`, request);
+
+            /** 
             // Create the request object
             const updatedRequest = {
                 reqID: request.reqID,
@@ -385,13 +404,17 @@ class DigiDonor extends Contract {
                 tokensPledged: pledge.pledgedTokens,
                 status: "pledged",
             };
+            */
 
             // Insert into the ledger
             await ctx.stub.putState(
                 request.reqID,
-                Buffer.from(JSON.stringify(updatedRequest))
+                Buffer.from(JSON.stringify(request))
             );
-            return JSON.stringify(updatedRequest);
+
+            return JSON.stringify(request);
+            // return JSON.parse(request);
+            // return request;
         } catch (error) {
             return `Error raising request: ${error.message}`;
         }

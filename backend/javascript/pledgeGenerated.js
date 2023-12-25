@@ -58,16 +58,23 @@ async function genPledge(pledge, username) {
         // Get the contract from the network.
         const contract = network.getContract("DigiDonor");
 
+        // console.log(`entire pledge`, pledge);
+        // console.log(`pledge req ID`, pledge.reqID);
+
         // Register the user such that it reflects in the chaincode
         const pledgeResponse = await contract.submitTransaction(
             "PledgeGenerated",
             pledge
         );
 
+        console.log(`pledgeresponse:`, pledgeResponse.toString());
+
         if (pledgeResponse) {
             console.log(`Successfully pledged the request ${pledge.reqID}.`);
+            return true;
         } else {
             console.log(pledgeResponse.toString());
+            return false;
         }
         // Disconnect from the gateway after executing registration
         await gateway.disconnect();
