@@ -179,10 +179,10 @@ class DigiDonor extends Contract {
         }
     }
 
-    // [DONE] ListRequests Function to list open donation requests
+    // [DONE] ListOpenRequests Function to list open donation requests
 
     async ListOpenRequests(ctx) {
-        requests = [];
+        open_requests = [];
         try {
             // Call GetAllAssets to retrieve all assets from the world state
             const allAssetsJSON = await this.GetAllAssets(ctx);
@@ -190,12 +190,13 @@ class DigiDonor extends Contract {
 
             // Filter all assets with "status": "open"
             // Store resulting rewards in the requests array
-            requests = allAssets
-                .filter((asset) => asset.status === "open")
-                .map((request) => JSON.stringify(request));
+            open_requests = allAssets.filter(
+                (asset) => asset.status === "open"
+            );
+            //.map((request) => JSON.stringify(request));
 
             // Return the filtered requests array
-            return requests;
+            return open_requests;
         } catch (error) {
             return `Error listing requests: ${error.message}`;
         }

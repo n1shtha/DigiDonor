@@ -147,7 +147,7 @@ function DonorHome() {
     navigate("/login");
   };
 
-  console.log(`tokenbal:`, tokenBalance);
+  // console.log(`tokenbal:`, tokenBalance);
 
   return (
     <div className="bg-light">
