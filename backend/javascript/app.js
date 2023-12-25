@@ -12,6 +12,8 @@ const getAllAssets = require("./getAllAssets.js");
 const browsePrevReq = require("./browsePrevReq.js");
 const raiseRequest = require("./raiseRequest.js");
 const generateToken = require("./generateToken.js");
+const listOpenRequests = require("./listOpenRequests.js");
+const browsePrevDon = require("./browsePrevDon.js");
 
 const app = express();
 app.use(cors());
@@ -70,6 +72,28 @@ app.post("/previousrequests", async (req, res) => {
         const prevRequestsData = await browsePrevReq(username);
         // console.log(JSON.parse(prevRequestsData)); Q: should we parse or not?
         res.json(JSON.parse(prevRequestsData));
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post("/allopenrequests", async (req, res) => {
+    const { username } = req.body;
+    try {
+        const allOpenRequestsData = await listOpenRequests(username);
+        // console.log(JSON.parse(prevRequestsData)); Q: should we parse or not?
+        res.json(JSON.parse(allOpenRequestsData));
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post("/previousdonations", async (req, res) => {
+    const { username } = req.body;
+    try {
+        const prevDonationsData = await browsePrevDon(username);
+        // console.log(JSON.parse(prevRequestsData)); Q: should we parse or not?
+        res.json(JSON.parse(prevDonationsData));
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }

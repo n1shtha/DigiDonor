@@ -131,7 +131,31 @@ class DigiDonor extends Contract {
     }
     */
 
-    // [TO-DO] BrowsePrevReq Function to list closed donation requests that have a token and donor associated to them
+    // [TO-DO] BrowsePrevDon Function to list closed donation requests that have a token and donor associated to them
+
+    async BrowsePrevDon(ctx, username) {
+        try {
+            // Call GetAllAssets to retrieve all assets from the world state
+            const allAssetsJSON = await this.GetAllAssets(ctx);
+            const allAssets = JSON.parse(allAssetsJSON);
+
+            let donor_donations = [];
+            // Filter all requests with "status": "open" and "recipient" : username
+            // Store resulting rewards in a user_requests array
+            donor_donations = allAssets.filter(
+                (asset) =>
+                    asset.status === "pledged" && asset.donor === username // status changes to pledged once tokens have been pledged, can make this "closed" also? donor is appended to our initial request upon successful funding of a request
+            );
+            //.map((request) => JSON.stringify(request));
+
+            // Return the filtered array
+            return donor_donations;
+        } catch (error) {
+            return `Error listing previous donations: ${error.message}`;
+        }
+    }
+
+    // [DONE] BrowsePrevReq Function to list open donation requests that don't have a token and donor associated to them
 
     async BrowsePrevReq(ctx, username) {
         try {
@@ -155,9 +179,9 @@ class DigiDonor extends Contract {
         }
     }
 
-    // [TO-DO] ListRequests Function to list open donation requests
+    // [DONE] ListRequests Function to list open donation requests
 
-    async ListRequests(ctx) {
+    async ListOpenRequests(ctx) {
         requests = [];
         try {
             // Call GetAllAssets to retrieve all assets from the world state
