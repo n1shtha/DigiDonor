@@ -30,6 +30,16 @@ function StudentHome() {
 
   const [tableData, setTableData] = useState([]);
 
+  const [redeemDetails, setRedeemDetails] = useState(null);
+
+  const handleRedeemClick = (request) => {
+    setRedeemDetails(request);
+  };
+
+  const handleCopy = (text) => {
+    navigator.clipboard.writeText(text);
+  };
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -149,6 +159,16 @@ function StudentHome() {
                       <td>{request.amount}</td>
                       <td>{request.purpose}</td>
                       <td>{request.status}</td>
+                      <td>
+                        {request.status === "pledged" && (
+                          <button
+                            className="btn btn-outline-success"
+                            onClick={() => handleRedeemClick(request)}
+                          >
+                            Redeem
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -162,6 +182,28 @@ function StudentHome() {
               </button>
             </div>
           </div>
+          
+          {redeemDetails && (
+          <div className="modal">
+            <div className="modal-content">
+              <span
+                className="close"
+                onClick={() => setRedeemDetails(null)}
+              >
+                &times; 
+              </span>
+              <h2>Redeem Details</h2>
+              <p>Pledge ID: {redeemDetails.pledgeID}</p>
+              <button onClick={() => handleCopy(redeemDetails.pledgeID)}>
+                Copy Pledge ID
+              </button>
+              <Link to={`/${redeemDetails.outlet}`} className="btn btn-primary">
+                Go to Outlet Page
+              </Link>
+            </div>
+          </div>
+          )}
+
           <div className="col">
             <h4 className="m-2 text-center">Create new request</h4>
             <div className="form-container p-5 rounded bg-white">
