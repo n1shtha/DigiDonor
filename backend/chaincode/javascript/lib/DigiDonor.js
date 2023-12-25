@@ -182,7 +182,7 @@ class DigiDonor extends Contract {
     // [DONE] ListOpenRequests Function to list open donation requests
 
     async ListOpenRequests(ctx) {
-        open_requests = [];
+        let open_requests = [];
         try {
             // Call GetAllAssets to retrieve all assets from the world state
             const allAssetsJSON = await this.GetAllAssets(ctx);
@@ -380,6 +380,7 @@ class DigiDonor extends Contract {
                 recipient: request.username, // should we remove this?
                 amount: request.amount,
                 purpose: request.purpose,
+                donor: pledge.username,
                 pledgeID: pledge.pledgeID,
                 tokensPledged: pledge.pledgedTokens,
                 status: "pledged",

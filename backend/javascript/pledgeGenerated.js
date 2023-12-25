@@ -11,7 +11,7 @@ const FabricCAServices = require("fabric-ca-client");
 const fs = require("fs");
 const path = require("path");
 
-async function genPledge(pledge) {
+async function genPledge(pledge, username) {
     try {
         // load the network configuration
         const ccpPath = path.resolve(

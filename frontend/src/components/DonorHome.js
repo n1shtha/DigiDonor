@@ -10,7 +10,7 @@ function DonorHome() {
   useEffect(() => {
     const storedUser = localStorage.getItem("loggedInUsername");
     const storedTokens = localStorage.getItem("tokens");
-    
+
     if (storedUser) {
       setLoggedInUser(JSON.parse(storedUser));
     }
@@ -72,13 +72,12 @@ function DonorHome() {
       }
 
       // also saving it to localStorage
-      localStorage.setItem('tokens', JSON.stringify(tokens));
+      localStorage.setItem("tokens", JSON.stringify(tokens));
 
       setTokenArray(tokens);
       // to reflect updated token count after pledging
-      setTokenBalance(prevBalance => prevBalance + tokens.length);
-    } 
-    catch (error) {
+      setTokenBalance((prevBalance) => prevBalance + tokens.length);
+    } catch (error) {
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -165,43 +164,53 @@ function DonorHome() {
 
   // console.log(`tokenbal:`, tokenBalance);
 
+  const sendPledgeToServer = async (pledge) => {
+    const username = loggedInUser;
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/pledge",
+        pledge,
+        username
+      );
+      console.log("Pledge sent successfully:", response.data);
+    } catch (error) {
+      console.error("Error sending pledge:", error);
+    }
+  };
+
   const handleSelect = (reqID, amount) => {
-    const isConfirmed = window.confirm(`Are you sure you want to select request ID ${reqID}?`);
+    const isConfirmed = window.confirm(
+      `Are you sure you want to select request ID ${reqID}?`
+    );
 
     if (isConfirmed) {
+      const username = loggedInUser;
+
       // Calculate no. of tokens
       const tokensToPledge = Math.floor(amount / 10);
 
       // Fetch Tokens Array from localStorage
-      let tokens = JSON.parse(localStorage.getItem('tokens'));
+      let tokens = JSON.parse(localStorage.getItem("tokens"));
 
       // Remove x tokens from the array
       const pledgedTokens = tokens.splice(0, tokensToPledge);
 
       // Updated tokens in localStorage
-      localStorage.setItem('tokens', JSON.stringify(tokens));
+      localStorage.setItem("tokens", JSON.stringify(tokens));
 
       const pledge = {
+        username,
         pledgeID: `Pledge_${Math.random().toString(36).substr(2, 9)}`,
         pledgedTokens,
-        reqID
+        reqID,
       };
 
       // Adjust token balance after pledge
-      setTokenBalance(prevBalance => prevBalance - pledgedTokens.length);
+      setTokenBalance((prevBalance) => prevBalance - pledgedTokens.length);
 
       sendPledgeToServer(pledge);
     }
-  
-    const sendPledgeToServer = async (pledge) => {
-      try {
-          const response = await axios.post("http://localhost:8080/pledge", pledge);
-          console.log("Pledge sent successfully:", response.data);
-      } catch (error) {
-          console.error("Error sending pledge:", error);
-      }
-  }
-}
+  };
 
   return (
     <div className="bg-light">
@@ -243,7 +252,7 @@ function DonorHome() {
                 className="form-control"
                 placeholder="Amount (INR)"
                 defaultValue={formData.amount}
-                onChange={handlePastFetch} //handleChange?
+                onChange={handleChange}
               />
               <button class="btn btn-outline-success" type="submit">
                 Generate tokens
@@ -289,7 +298,11 @@ function DonorHome() {
                   </tr>
                 </tbody>
               </table>
-              <button class="btn btn-outline-info" type="submit" onClick={handlePastFetch}>
+              <button
+                class="btn btn-outline-info"
+                type="submit"
+                onClick={handlePastFetch}
+              >
                 Fetch data
               </button>
             </div>
@@ -297,7 +310,7 @@ function DonorHome() {
           <div className="col">
             <h4 className="m-2 text-center">Browse open requests</h4>
             <div className="form-container p-5 rounded bg-white">
-            <table class="table">
+              <table class="table">
                 <thead>
                   <tr>
                     <th scope="col">ID</th>
@@ -314,13 +327,24 @@ function DonorHome() {
                       <td>{request.purpose}</td>
                       <td>{request.status}</td>
                       <td className="hover-button">
-                        <button className="select-button" onClick={() => handleSelect(request.reqID, request.amount)}>Select</button>
+                        <button
+                          className="select-button"
+                          onClick={() =>
+                            handleSelect(request.reqID, request.amount)
+                          }
+                        >
+                          Select
+                        </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-              <button class="btn btn-outline-info" type="submit" onClick={handleOpenFetch}>
+              <button
+                class="btn btn-outline-info"
+                type="submit"
+                onClick={handleOpenFetch}
+              >
                 Fetch data
               </button>
             </div>

@@ -131,6 +131,17 @@ app.post("/generatetoken", async (req, res) => {
     }
 });
 
+app.post("/pledge", async (req, res) => {
+    const { pledge, username } = req.body;
+    console.log(pledge);
+    try {
+        const pledgeResponse = await genPledge(pledge, username);
+        res.json(JSON.parse(pledgeResponse));
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
