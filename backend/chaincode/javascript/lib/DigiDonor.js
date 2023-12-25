@@ -97,10 +97,12 @@ class DigiDonor extends Contract {
         return exists;
     }
 
+    /** 
     // [TO-DO] DonorDonates Function to create tokens for a donor upon registration, based on a certain amount
 
-    async DonorDonates(username, amount) {
+    async GenerateToken(username) {
         // Calculate the number of tokens based on the amount (assuming each token is worth 10 units)
+
         const numberOfTokens = Math.floor(amount / 10);
 
         // Array to hold the tokens
@@ -110,6 +112,7 @@ class DigiDonor extends Contract {
         for (let i = 0; i < numberOfTokens; i++) {
             // Generate a random token ID
             const tokenID = Math.floor(Math.random() * 1000000);
+            console.log(tokenID);
 
             // Create the token object
             const token = {
@@ -118,12 +121,15 @@ class DigiDonor extends Contract {
                 amount: 10, // Q: won't we have to change this to another var, units?
             };
 
+            console.log(token);
+
             // Add the token to the array
             tokens.push(token);
         }
 
-        return tokens;
+        return username;
     }
+    */
 
     // [TO-DO] BrowsePrevReq Function to list closed donation requests that have a token and donor associated to them
 

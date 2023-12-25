@@ -35,13 +35,12 @@ function StudentHome() {
   const handleChange = (e) => {
     //e.preventDefault();
     const { name, value } = e.target;
-    console.log(`Effect of change - Name: ${name}, Value: ${value}`);
+    // console.log(`Effect of change - Name: ${name}, Value: ${value}`);
     // setFormData({ ...formData, [name]: value });
     setFormData({
       ...formData,
       [name]: name === "amount" ? parseInt(value, 10) : value, // Q: check if this is parsing properly, idts
     });
-    console.log(formData.reqID);
   };
 
   const handleSubmit = async (e) => {
