@@ -149,7 +149,7 @@ app.post("/redeem", async (req, res) => {
     try {
       const redeemResponse = await redeem(pledgeID, item, username, outlet);
       if (redeemResponse){
-        res.json({ success: true });
+        res.json({ success: true, message: redeemResponse });
       }
       else{
         throw new Error(`Error redeeming pledge with ID ${pledgeID}.${JSON.parse(redeemResponse)}`);

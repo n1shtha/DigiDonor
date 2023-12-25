@@ -42,7 +42,7 @@ async function redeem(pledgeID, username, item, outlet) {
 
         if (redeemResponse){
             return redeemResponse;
-            console.log(`Successfully redeemed the pledge with ID ${pledgeID}.`);
+            //console.log(`Successfully redeemed the pledge with ID ${pledgeID}.`);
         } else {
             console.log(redeemResponse.toString());
         }
