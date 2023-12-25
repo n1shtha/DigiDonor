@@ -340,7 +340,7 @@ class DigiDonor extends Contract {
 
     // StudentExists checks if student is already registered
     // called in RegisterOutlet function
-    async OutletExists(ctx, name) {
+    async OutletExists(name) {
         // Check if the user is in users dict
         const exists = outlets.some((outlet) => outlet.name === name);
         return exists;
@@ -419,6 +419,28 @@ class DigiDonor extends Contract {
             return `Error raising request: ${error.message}`;
         }
     }
+
+    async Redeem(ctx, pledgeID, username, item, outlet){
+        // Perform checks
+        try{
+            outletExists = await this.OutletExists(outlet);
+
+            if (!outletExists) {
+                throw new Error(`Outlet ${outlet} is not registered.`);
+            }
+            
+            reqAsBytes = await ctx.stub.getState(pledgeID);
+            const request = JSON.parse(reqBytes.toString());
+
+            if(request.recipient === username){
+                return `Success! The money has been transferred to ${outlet} and the ${item} has been purchased! Enjoy and thank you for using DigiDonor`;
+            }
+    } catch(error){
+        return `Error redeem: ${error.message}`;
+    }
+        
+    }
+
     // AssetExists function to check if an asset exists in the ledger based on its ID
     // called in CreateReward function
     async AssetExists(ctx, id) {

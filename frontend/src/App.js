@@ -8,6 +8,7 @@ import StudentHome from "./components/StudentHome";
 import DonorHome from "./components/DonorHome";
 import OutletPage from "./components/OutletPage";
 import OutletRegistration from "./components/OutletRegistration";
+import SuccessPage from "./components/SuccessPage";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
         <Route path="/donor" element={<DonorHome />}></Route>
         <Route path="/:outlet" element={<OutletPage />} />
         <Route path="/outletregistration" element={<OutletRegistration />} />
+        <Route path="/success" element={<SuccessPage />} />
       </Routes>
     </BrowserRouter>
   );

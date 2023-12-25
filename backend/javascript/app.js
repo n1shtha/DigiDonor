@@ -15,6 +15,7 @@ const generateToken = require("./generateToken.js");
 const listOpenRequests = require("./listOpenRequests.js");
 const browsePrevDon = require("./browsePrevDon.js");
 const genPledge = require("./pledgeGenerated.js");
+const redeem = require("./redeem.js");
 
 const app = express();
 app.use(cors());
@@ -136,7 +137,44 @@ app.post("/pledge", async (req, res) => {
     try {
         const pledgeResponse = await genPledge(pledge, username);
         res.json(JSON.parse(pledgeResponse));
-        // res.json({ pledgeResponse });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post("/redeem", async (req, res) => {
+    const { pledgeID, item, username, outlet } = req.body;
+    
+    try {
+      const redeemResponse = await redeem(pledgeID, item, username, outlet);
+      if (redeemResponse){
+        res.json({ success: true, message: redeemResponse });
+      }
+      else{
+        throw new Error(`Error redeeming pledge with ID ${pledgeID}.${JSON.parse(redeemResponse)}`);
+      }
+    } catch (error) {
+      res.status(500).send({ message: error.toString() });
+    }
+  });
+
+/** 
+
+app.get('/users', textParser, async (req, res) => {
+    console.log("Entered get request.");
+    var username = req.body;
+    console.log(username);
+    res.send("true");
+});
+
+app.post('/users', textParser, async (req, res) => {
+    console.log("Entered post request.");
+    var username = req.body;
+    console.log(username);
+    try {
+        var userType = await getUserType(username);
+        console.log(userType);
+        res.json(userType);
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
