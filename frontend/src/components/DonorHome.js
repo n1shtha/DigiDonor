@@ -164,14 +164,23 @@ function DonorHome() {
 
   // console.log(`tokenbal:`, tokenBalance);
 
-  const sendPledgeToServer = async (pledge) => {
-    console.log(`pledge when it's sending to server`, pledge); // works
-    const username = loggedInUser;
+  const sendPledgeToServer = async (
+    reqID,
+    username,
+    pledgeID,
+    pledgedTokens
+  ) => {
+    console.log(`reqID when it's sending to server`, reqID); // works
+    console.log(`username when it's sending to server`, username); // works
+    console.log(`pledgeID when it's sending to server`, pledgeID); // works
+    console.log(`pledgedTokens when it's sending to server`, pledgedTokens); // works
     try {
       const response = await axios.post("http://localhost:8080/pledge", {
         // check if this works
-        pledge,
+        reqID,
         username,
+        pledgeID,
+        pledgedTokens,
       });
       console.log("Pledge sent successfully:", response.data); // response.data = true/false
     } catch (error) {
@@ -196,20 +205,15 @@ function DonorHome() {
       // Remove x tokens from the array
       const pledgedTokens = tokens.splice(0, tokensToPledge);
 
+      const pledgeID = "Pledge_" + Math.random().toString(36).substr(2, 9);
+
       // Updated tokens in localStorage
       localStorage.setItem("tokens", JSON.stringify(tokens));
-
-      const pledge = {
-        username,
-        pledgeID: `Pledge_${Math.random().toString(36).substr(2, 9)}`,
-        pledgedTokens,
-        reqID,
-      };
 
       // Adjust token balance after pledge
       setTokenBalance((prevBalance) => prevBalance - pledgedTokens.length);
 
-      sendPledgeToServer(pledge);
+      sendPledgeToServer(reqID, username, pledgeID, pledgedTokens);
     }
   };
 

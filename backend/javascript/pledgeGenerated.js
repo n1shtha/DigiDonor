@@ -11,7 +11,7 @@ const FabricCAServices = require("fabric-ca-client");
 const fs = require("fs");
 const path = require("path");
 
-async function genPledge(pledge, username) {
+async function genPledge(reqID, username, pledgeID, pledgedTokens) {
     try {
         // load the network configuration
         const ccpPath = path.resolve(
@@ -58,28 +58,29 @@ async function genPledge(pledge, username) {
         // Get the contract from the network.
         const contract = network.getContract("DigiDonor");
 
-        // console.log(`entire pledge`, pledge);
-        // console.log(`pledge req ID`, pledge.reqID);
-
         // Register the user such that it reflects in the chaincode
         const pledgeResponse = await contract.submitTransaction(
             "PledgeGenerated",
-            pledge
+            reqID,
+            username,
+            pledgeID,
+            pledgedTokens
         );
 
         console.log(`pledgeresponse:`, pledgeResponse.toString());
 
+        // Disconnect from the gateway after executing registration
+        await gateway.disconnect();
+
         if (pledgeResponse) {
-            console.log(`Successfully pledged the request ${pledge.reqID}.`);
+            console.log(`Successfully pledged the request ${pledgeID}.`);
             return true;
         } else {
             console.log(pledgeResponse.toString());
             return false;
         }
-        // Disconnect from the gateway after executing registration
-        await gateway.disconnect();
     } catch (error) {
-        console.error(`Failed to pledge request ${pledge.reqID}: ${error}`);
+        console.error(`Failed to pledge request ${reqID}: ${error}`);
         process.exit(1);
     }
 }

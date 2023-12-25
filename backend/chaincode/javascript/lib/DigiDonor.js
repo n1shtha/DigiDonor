@@ -376,19 +376,29 @@ class DigiDonor extends Contract {
         }
     }
 
+    /** 
     // Update request with pledge details
     async PledgeGenerated(ctx, pledge) {
         try {
             // Retrieve the asset from the ledger
-            const reqBytes = await ctx.stub.getState(pledge.reqID);
+            const reqID = "ID_ykb8qif7y";
+            console.log(pledge);
+            const reqBytes = await ctx.stub.getState(reqID);
             const request = JSON.parse(reqBytes.toString());
 
             console.log(`request before update:`, request);
 
+            request.donor = "testdonor";
+            request.pledgeID = "1234";
+            request.tokensPledged = [];
+            request.status = "pledged";
+
+            /** 
             request.donor = pledge.username;
             request.pledgeID = pledge.pledgeID;
             request.tokensPledged = pledge.pledgedTokens;
             request.status = "pledged";
+
 
             console.log(`request after update:`, request);
 
@@ -404,11 +414,11 @@ class DigiDonor extends Contract {
                 tokensPledged: pledge.pledgedTokens,
                 status: "pledged",
             };
-            */
+            
 
             // Insert into the ledger
             await ctx.stub.putState(
-                request.reqID,
+                reqID,
                 Buffer.from(JSON.stringify(request))
             );
 
@@ -419,26 +429,58 @@ class DigiDonor extends Contract {
             return `Error raising request: ${error.message}`;
         }
     }
+*/
+    // Update request with pledge details
+    async PledgeGenerated(ctx, reqID, username, pledgeID, pledgedTokens) {
+        // note: might have to parse pledgedTokens a certain way
+        try {
+            console.log(reqID);
+            const reqBytes = await ctx.stub.getState(reqID);
+            const request = JSON.parse(reqBytes.toString());
 
-    async Redeem(ctx, pledgeID, username, item, outlet){
+            const updatedFields = {
+                donor: username,
+                pledgeID: pledgeID,
+                tokensPledged: pledgedTokens,
+                status: "pledged",
+            };
+
+            console.log(`request before update:`, request);
+
+            Object.assign(request, updatedFields);
+
+            // Insert into the ledger
+            await ctx.stub.putState(
+                reqID,
+                Buffer.from(JSON.stringify(request))
+            );
+
+            console.log(`request after update:`, request);
+
+            return request;
+        } catch (error) {
+            return `Error raising request: ${error.message}`;
+        }
+    }
+
+    async Redeem(ctx, pledgeID, username, item, outlet) {
         // Perform checks
-        try{
+        try {
             outletExists = await this.OutletExists(outlet);
 
             if (!outletExists) {
                 throw new Error(`Outlet ${outlet} is not registered.`);
             }
-            
+
             reqAsBytes = await ctx.stub.getState(pledgeID);
             const request = JSON.parse(reqBytes.toString());
 
-            if(request.recipient === username){
+            if (request.recipient === username) {
                 return `Success! The money has been transferred to ${outlet} and the ${item} has been purchased! Enjoy and thank you for using DigiDonor`;
             }
-    } catch(error){
-        return `Error redeem: ${error.message}`;
-    }
-        
+        } catch (error) {
+            return `Error redeem: ${error.message}`;
+        }
     }
 
     // AssetExists function to check if an asset exists in the ledger based on its ID
