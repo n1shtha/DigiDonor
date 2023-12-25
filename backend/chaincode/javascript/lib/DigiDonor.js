@@ -367,6 +367,34 @@ class DigiDonor extends Contract {
         }
     }
 
+    // Update request with pledge details
+    async PledgeGenerated(ctx, pledge) {
+        try {
+            // Retrieve the asset from the ledger
+            const reqBytes = await ctx.stub.getState(pledge.reqID);
+            const request = JSON.parse(reqBytes.toString());
+
+            // Create the request object
+            const updatedRequest = {
+                reqID: request.reqID,
+                recipient: request.username, // should we remove this?
+                amount: request.amount,
+                purpose: request.purpose,
+                pledgeID: pledge.pledgeID,
+                tokensPledged: pledge.pledgedTokens,
+                status: "pledged",
+            };
+
+            // Insert into the ledger
+            await ctx.stub.putState(
+                request.reqID,
+                Buffer.from(JSON.stringify(updatedRequest))
+            );
+            return JSON.stringify(updatedRequest);
+        } catch (error) {
+            return `Error raising request: ${error.message}`;
+        }
+    }
     // AssetExists function to check if an asset exists in the ledger based on its ID
     // called in CreateReward function
     async AssetExists(ctx, id) {

@@ -14,6 +14,7 @@ const raiseRequest = require("./raiseRequest.js");
 const generateToken = require("./generateToken.js");
 const listOpenRequests = require("./listOpenRequests.js");
 const browsePrevDon = require("./browsePrevDon.js");
+const genPledge = require("./pledgeGenerated.js");
 
 const app = express();
 app.use(cors());

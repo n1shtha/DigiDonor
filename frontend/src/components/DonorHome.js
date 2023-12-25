@@ -9,8 +9,16 @@ function DonorHome() {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("loggedInUsername");
+    const storedTokens = localStorage.getItem("tokens");
+    
     if (storedUser) {
       setLoggedInUser(JSON.parse(storedUser));
+    }
+
+    if (storedTokens) {
+      const parsedTokens = JSON.parse(storedTokens);
+      setTokenArray(parsedTokens);
+      setTokenBalance(parsedTokens.length);
     }
   }, []);
 
@@ -35,10 +43,15 @@ function DonorHome() {
     e.preventDefault();
     // const { amount } = formData;
     const amount = document.getElementById("donorAmount").value;
+    // can we change this to formData?
+
+    if (!amount) {
+      setMessage("Please enter a valid amount.");
+      return;
+    }
+
     const username = loggedInUser;
-
     const numberOfTokens = Math.floor(amount / 10);
-
     // Array to hold the tokens
     const tokens = [];
 
@@ -58,9 +71,14 @@ function DonorHome() {
         tokens.push(token);
       }
 
-      setTokenArray(tokens); // token array is updated globally
-      setTokenBalance(tokens.length); // token count is updated globally
-    } catch (error) {
+      // also saving it to localStorage
+      localStorage.setItem('tokens', JSON.stringify(tokens));
+
+      setTokenArray(tokens);
+      // to reflect updated token count after pledging
+      setTokenBalance(prevBalance => prevBalance + tokens.length);
+    } 
+    catch (error) {
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -99,8 +117,6 @@ function DonorHome() {
       setMessage("Data fetched successfully!");
     } catch (error) {
       if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
         setMessage(error.response.data.error);
       } else if (error.request) {
         // The request was made but no response was received
@@ -149,6 +165,44 @@ function DonorHome() {
 
   // console.log(`tokenbal:`, tokenBalance);
 
+  const handleSelect = (reqID, amount) => {
+    const isConfirmed = window.confirm(`Are you sure you want to select request ID ${reqID}?`);
+
+    if (isConfirmed) {
+      // Calculate no. of tokens
+      const tokensToPledge = Math.floor(amount / 10);
+
+      // Fetch Tokens Array from localStorage
+      let tokens = JSON.parse(localStorage.getItem('tokens'));
+
+      // Remove x tokens from the array
+      const pledgedTokens = tokens.splice(0, tokensToPledge);
+
+      // Updated tokens in localStorage
+      localStorage.setItem('tokens', JSON.stringify(tokens));
+
+      const pledge = {
+        pledgeID: `Pledge_${Math.random().toString(36).substr(2, 9)}`,
+        pledgedTokens,
+        reqID
+      };
+
+      // Adjust token balance after pledge
+      setTokenBalance(prevBalance => prevBalance - pledgedTokens.length);
+
+      sendPledgeToServer(pledge);
+    }
+  
+    const sendPledgeToServer = async (pledge) => {
+      try {
+          const response = await axios.post("http://localhost:8080/pledge", pledge);
+          console.log("Pledge sent successfully:", response.data);
+      } catch (error) {
+          console.error("Error sending pledge:", error);
+      }
+  }
+}
+
   return (
     <div className="bg-light">
       <nav className="navbar navbar-light bg-dark">
@@ -189,7 +243,7 @@ function DonorHome() {
                 className="form-control"
                 placeholder="Amount (INR)"
                 defaultValue={formData.amount}
-                onChange={handlePastFetch}
+                onChange={handlePastFetch} //handleChange?
               />
               <button class="btn btn-outline-success" type="submit">
                 Generate tokens
@@ -235,7 +289,7 @@ function DonorHome() {
                   </tr>
                 </tbody>
               </table>
-              <button class="btn btn-outline-info" type="submit">
+              <button class="btn btn-outline-info" type="submit" onClick={handlePastFetch}>
                 Fetch data
               </button>
             </div>
@@ -243,37 +297,30 @@ function DonorHome() {
           <div className="col">
             <h4 className="m-2 text-center">Browse open requests</h4>
             <div className="form-container p-5 rounded bg-white">
-              <table class="table">
+            <table class="table">
                 <thead>
                   <tr>
-                    <th scope="col">#</th>
                     <th scope="col">ID</th>
                     <th scope="col">Amount</th>
-                    <th scope="col">Type</th>
+                    <th scope="col">Purpose</th>
+                    <th scope="col">Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">2</th>
-                    <td>Jacob</td>
-                    <td>Thornton</td>
-                    <td>@fat</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">3</th>
-                    <td>hi</td>
-                    <td>test</td>
-                    <td>@twitter</td>
-                  </tr>
+                  {openTableData.map((request) => (
+                    <tr key={request.reqID}>
+                      <td>{request.reqID}</td>
+                      <td>{request.amount}</td>
+                      <td>{request.purpose}</td>
+                      <td>{request.status}</td>
+                      <td className="hover-button">
+                        <button className="select-button" onClick={() => handleSelect(request.reqID, request.amount)}>Select</button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
-              <button class="btn btn-outline-info" type="submit">
+              <button class="btn btn-outline-info" type="submit" onClick={handleOpenFetch}>
                 Fetch data
               </button>
             </div>

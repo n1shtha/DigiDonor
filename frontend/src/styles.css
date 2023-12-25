@@ -22,6 +22,14 @@
     width: 50%;
 }
 
+.hover-button .select-button {
+    display: none; /* default */
+}
+
+.hover-button:hover .select-button {
+    display: inline-block; /* Display the button when the row is hovered over */
+}
+
 @media screen and (max-width: 1000px) {
     .form_container {
         width: 45%;
