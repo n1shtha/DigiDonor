@@ -21,7 +21,7 @@ function DonorHome() {
       setTokenBalance(parsedTokens.length);
     }
   }, []);
-
+  
   const [formData, setFormData] = useState({
     // note: setFormData doesn't seem to be working when only one key is there so I've done it with the text field's ID instead
     amount: 0,
@@ -112,7 +112,7 @@ function DonorHome() {
         "http://localhost:8080/allopenrequests",
         { username }
       );
-
+      console.log(allOpenRequestsResponse.data);
       setOpenTableData(allOpenRequestsResponse.data);
       setMessage("Data fetched successfully!");
     } catch (error) {
@@ -165,6 +165,20 @@ function DonorHome() {
 
   console.log(`tokenbal:`, tokenBalance);
 
+  const sendPledgeToServer = async (pledge) => {
+    const username = loggedInUser;
+
+    try {
+        const response = await axios.post(
+          "http://localhost:8080/pledge", 
+          pledge, 
+          username);
+        console.log("Pledge sent successfully:", response.data);
+    } catch (error) {
+        console.error("Error sending pledge:", error);
+    }
+  }
+
   const handleSelect = (reqID, amount) => {
     const isConfirmed = window.confirm(`Are you sure you want to select request ID ${reqID}?`);
 
@@ -192,15 +206,6 @@ function DonorHome() {
 
       sendPledgeToServer(pledge);
     }
-  
-    const sendPledgeToServer = async (pledge) => {
-      try {
-          const response = await axios.post("http://localhost:8080/pledge", pledge);
-          console.log("Pledge sent successfully:", response.data);
-      } catch (error) {
-          console.error("Error sending pledge:", error);
-      }
-  }
 }
 
   return (
@@ -243,7 +248,7 @@ function DonorHome() {
                 className="form-control"
                 placeholder="Amount (INR)"
                 defaultValue={formData.amount}
-                onChange={handlePastFetch} //handleChange?
+                onChange={handleChange} 
               />
               <button class="btn btn-outline-success" type="submit">
                 Generate tokens

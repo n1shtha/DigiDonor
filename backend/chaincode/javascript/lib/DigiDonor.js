@@ -182,7 +182,7 @@ class DigiDonor extends Contract {
     // [DONE] ListRequests Function to list open donation requests
 
     async ListOpenRequests(ctx) {
-        requests = [];
+        let requests = [];
         try {
             // Call GetAllAssets to retrieve all assets from the world state
             const allAssetsJSON = await this.GetAllAssets(ctx);

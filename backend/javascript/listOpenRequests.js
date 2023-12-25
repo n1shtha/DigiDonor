@@ -60,14 +60,19 @@ async function listOpenRequests(username) {
         // Get the contract from the network.
         const contract = network.getContract("DigiDonor");
 
-        // Register the user such that it reflects in the chaincode
         const allOpenRequestsResponse = await contract.evaluateTransaction(
             "ListOpenRequests"
         );
-        console.log(
-            `Listing all open requests`,
-            allOpenRequestsResponse.toString()
-        );
+        if (allOpenRequestsResponse) {
+            console.log(
+                `Successfully got open requests.`
+            );
+
+            return allOpenRequestsResponse;
+
+        } else {
+            console.log(allOpenRequestsResponse.toString());
+        }
 
         // Disconnect from the gateway after executing registration
         await gateway.disconnect();
