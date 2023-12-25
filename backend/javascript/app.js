@@ -14,6 +14,7 @@ const raiseRequest = require("./raiseRequest.js");
 const generateToken = require("./generateToken.js");
 const listOpenRequests = require("./listOpenRequests.js");
 const browsePrevDon = require("./browsePrevDon.js");
+const genPledge = require("./pledgeGenerated.js");
 
 const app = express();
 app.use(cors());
@@ -129,6 +130,18 @@ app.post("/generatetoken", async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 });
+
+app.post("/pledge", async (req, res) => {
+    const { pledge } = req.body;
+    console.log(pledge)
+    try {
+        const pledgeResponse = await pledgeGenerated(pledge);
+        res.json(JSON.parse(pledgeResponse));
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 /** 
 
 app.get('/users', textParser, async (req, res) => {
