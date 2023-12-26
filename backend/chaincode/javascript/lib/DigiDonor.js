@@ -109,41 +109,7 @@ class DigiDonor extends Contract {
         return exists;
     }
 
-    /** 
-    // [TO-DO] DonorDonates Function to create tokens for a donor upon registration, based on a certain amount
-
-    async GenerateToken(username) {
-        // Calculate the number of tokens based on the amount (assuming each token is worth 10 units)
-
-        const numberOfTokens = Math.floor(amount / 10);
-
-        // Array to hold the tokens
-        const tokens = [];
-
-        // Generate tokens
-        for (let i = 0; i < numberOfTokens; i++) {
-            // Generate a random token ID
-            const tokenID = Math.floor(Math.random() * 1000000);
-            console.log(tokenID);
-
-            // Create the token object
-            const token = {
-                ID: tokenID,
-                donor: username,
-                amount: 10, // Q: won't we have to change this to another var, units?
-            };
-
-            console.log(token);
-
-            // Add the token to the array
-            tokens.push(token);
-        }
-
-        return username;
-    }
-    */
-
-    // [TO-DO] BrowsePrevDon Function to list closed donation requests that have a token and donor associated to them
+    // BrowsePrevDon Function to list closed donation requests that have a token and donor associated to them
 
     async BrowsePrevDon(ctx, username) {
         try {
@@ -167,7 +133,7 @@ class DigiDonor extends Contract {
         }
     }
 
-    // [DONE] BrowsePrevReq Function to list open donation requests that don't have a token and donor associated to them
+    // BrowsePrevReq Function to list open donation requests that don't have a token and donor associated to them
 
     async BrowsePrevReq(ctx, username) {
         try {
@@ -190,7 +156,7 @@ class DigiDonor extends Contract {
         }
     }
 
-    // [DONE] ListOpenRequests Function to list open donation requests
+    // ListOpenRequests Function to list open donation requests
 
     async ListOpenRequests(ctx) {
         let open_requests = [];
@@ -213,7 +179,7 @@ class DigiDonor extends Contract {
         }
     }
 
-    // [DONE] RaiseRequest Function to create a donation request from a student
+    // RaiseRequest Function to create a donation request from a student
 
     async RaiseRequest(ctx, reqID, username, amount, purpose, outlet) {
         try {
@@ -238,7 +204,7 @@ class DigiDonor extends Contract {
         }
     }
 
-    // [DONE] LoginUser Function log in users and donors based on values stored in dictionary
+    // LoginUser Function log in users and donors based on values stored in dictionary
 
     async LoginUser(ctx, username, password, userType) {
         try {
@@ -292,7 +258,7 @@ class DigiDonor extends Contract {
         }
     }
 
-    // [DONE] RegisterUser Function to register users and donors based on userType
+    // RegisterUser Function to register users and donors based on userType
 
     async RegisterUser(ctx, username, password, userType) {
         try {
@@ -341,7 +307,7 @@ class DigiDonor extends Contract {
         }
     }
 
-    // StudentExists checks if student is already registered
+    // OutletExists checks if outlet is already registered
     // called in RegisterOutlet function
     async OutletExists(name) {
         // Check if the user is in users dict
@@ -379,60 +345,6 @@ class DigiDonor extends Contract {
         }
     }
 
-    /** 
-    // Update request with pledge details
-    async PledgeGenerated(ctx, pledge) {
-        try {
-            // Retrieve the asset from the ledger
-            const reqID = "ID_ykb8qif7y";
-            console.log(pledge);
-            const reqBytes = await ctx.stub.getState(reqID);
-            const request = JSON.parse(reqBytes.toString());
-
-            console.log(`request before update:`, request);
-
-            request.donor = "testdonor";
-            request.pledgeID = "1234";
-            request.tokensPledged = [];
-            request.status = "pledged";
-
-            /** 
-            request.donor = pledge.username;
-            request.pledgeID = pledge.pledgeID;
-            request.tokensPledged = pledge.pledgedTokens;
-            request.status = "pledged";
-
-
-            console.log(`request after update:`, request);
-
-            /** 
-            // Create the request object
-            const updatedRequest = {
-                reqID: request.reqID,
-                recipient: request.username, // should we remove this?
-                amount: request.amount,
-                purpose: request.purpose,
-                donor: pledge.username,
-                pledgeID: pledge.pledgeID,
-                tokensPledged: pledge.pledgedTokens,
-                status: "pledged",
-            };
-            
-
-            // Insert into the ledger
-            await ctx.stub.putState(
-                reqID,
-                Buffer.from(JSON.stringify(request))
-            );
-
-            return JSON.stringify(request);
-            // return JSON.parse(request);
-            // return request;
-        } catch (error) {
-            return `Error raising request: ${error.message}`;
-        }
-    }
-*/
     // Update request with pledge details
     async PledgeGenerated(ctx, reqID, username, pledgeID, pledgedTokens) {
         // note: might have to parse pledgedTokens a certain way
@@ -448,8 +360,6 @@ class DigiDonor extends Contract {
                 status: "pledged",
             };
 
-            console.log(`request before update:`, request);
-
             Object.assign(request, updatedFields);
 
             // Insert into the ledger
@@ -457,8 +367,6 @@ class DigiDonor extends Contract {
                 reqID,
                 Buffer.from(JSON.stringify(request))
             );
-
-            console.log(`request after update:`, request);
 
             return request;
         } catch (error) {
@@ -469,7 +377,11 @@ class DigiDonor extends Contract {
     async Redeem(ctx, pledgeID, username, item, outlet) {
         // Perform checks
         try {
-            outletExists = await this.OutletExists(outlet);
+            const outletExists = await this.OutletExists(outlet);
+
+            const updatedFields = {
+                status: "closed",
+            };
 
             if (!outletExists) {
                 throw new Error(`Outlet ${outlet} is not registered.`);
@@ -479,8 +391,17 @@ class DigiDonor extends Contract {
             const request = JSON.parse(reqBytes.toString());
 
             if (request.recipient === username) {
+
+                Object.assign(request, updatedFields); // update status to closed
                 return `Success! The money has been transferred to ${outlet} and the ${item} has been purchased! Enjoy and thank you for using DigiDonor`;
             }
+
+            // Insert into the ledger
+            await ctx.stub.putState(
+                pledgeID,
+                Buffer.from(JSON.stringify(request))
+            );
+
         } catch (error) {
             return `Error redeem: ${error.message}`;
         }
@@ -493,47 +414,8 @@ class DigiDonor extends Contract {
         return assetAsBytes && assetAsBytes.length > 0;
     }
 
-    // CreateReward issues a new reward to the world state with given details if the owner is the university
-    // called in listRewards.js (client)
-    async CreateReward(ctx, id, owner, date, item, outlet, value, isVerified) {
-        try {
-            // Query the ledger to see if the reward already exists
-            const AssetExists = await this.AssetExists(ctx, id);
-            if (AssetExists) {
-                throw new Error(`The reward ${id} already exists`);
-            }
-
-            // Ensure the user trying to create the reward is a registered university
-            const UniversityExists = await this.UniversityExists(owner);
-            if (!UniversityExists) {
-                throw new Error(
-                    "Only registered university users can create rewards."
-                );
-            }
-
-            // Create reward
-            const reward = {
-                ID: id,
-                Owner: owner,
-                Date: date,
-                Reward: "yes", // set to 'yes' since it is a reward
-                Item: item,
-                Outlet: outlet,
-                Value: value,
-                Verified: isVerified,
-            };
-
-            // Insert into the ledger
-            await ctx.stub.putState(id, Buffer.from(JSON.stringify(reward)));
-
-            return JSON.stringify(reward);
-        } catch (error) {
-            return `Error creating reward: ${error.message}`;
-        }
-    }
-
     // GetAllAssets function returns all assets found in the world state.
-    // called in ListRewards
+    // called in ListRequests
     async GetAllAssets(ctx) {
         // Array of all assets in the ledger
         const allResponses = [];
@@ -559,291 +441,6 @@ class DigiDonor extends Contract {
         }
         return JSON.stringify(allResponses);
     }
-
-    // ListRewards retrives all assets from world state, filters the rewards into an array, and also returns it as JSON string, for a given registered university
-    // Called in listRewards.js (client)
-    async ListRewards(ctx, owner) {
-        try {
-            // Call GetAllAssets to retrieve all assets from the world state
-            const allAssetsJSON = await this.GetAllAssets(ctx);
-            const allAssets = JSON.parse(allAssetsJSON);
-
-            // Call UniversityExists to check if the owner is a registered university
-            const universityExists = await this.UniversityExists(owner);
-            if (!universityExists) {
-                throw new Error(
-                    `The user ${owner} is not a registered university and does not have any listed rewards.`
-                );
-            }
-
-            // Filter all assets with "Reward": "yes" and "Owner" : owner
-            // Store resulting rewards in the global reward array
-            rewards = allAssets
-                .filter(
-                    (asset) => asset.Reward === "yes" && asset.Owner === owner
-                )
-                .map((reward) => JSON.stringify(reward));
-
-            // Return the filtered rewards array as JSON strings
-            return rewards.join("\n");
-        } catch (error) {
-            return `Error listing rewards: ${error.message}`;
-        }
-    }
-
-    // RegisterPurchase function to allow users make transactions in order to register purchases
-    // Called in registerPurchase.js (client)
-    async RegisterPurchase(ctx, id, owner, date, item, outlet) {
-        try {
-            // Check if the user is registered
-            const userExists = await this.UserExists(owner);
-            if (!userExists) {
-                throw new Error(`User with ID ${owner} is not registered.`);
-            }
-
-            // Check if the outlet is registered
-            const outletExists = await this.OutletExists(outlet);
-            if (!outletExists) {
-                throw new Error(`Outlet with ID ${outlet} is not registered.`);
-            }
-
-            // Check if the asset already exists
-            const assetExists = await this.AssetExists(ctx, id);
-            if (assetExists) {
-                throw new Error(`Asset with ID ${id} already exists.`);
-            }
-
-            // Create asset (transaction)
-            const asset = {
-                ID: id,
-                Owner: owner,
-                Date: date,
-                Reward: "no", // 'no' indicates a purchase
-                Item: item,
-                Outlet: outlet,
-                Verified: "no", // initialised to 'no'
-            };
-
-            // Insert the new asset into the ledger
-            await ctx.stub.putState(id, Buffer.from(JSON.stringify(asset)));
-
-            return JSON.stringify(asset);
-        } catch (error) {
-            return `Error registering purchase: ${error.message}`;
-        }
-    }
-
-    // VerifyPurchase function to allow outlets to update transactions to verify a purchase made by a user
-    // Called in verifyPurchase.js (client)
-    async VerifyPurchase(ctx, id, owner, outlet) {
-        try {
-            // Check if the user is registered and the asset exists
-            const userExists = await this.UserExists(owner);
-            const assetExists = await this.AssetExists(ctx, id);
-
-            if (!userExists) {
-                throw new Error(`User ${owner} does not exist.`);
-            }
-
-            if (!assetExists) {
-                throw new Error(`Asset with ID ${id} does not exist.`);
-            }
-
-            // Retrieve the asset from the ledger
-            const assetBytes = await ctx.stub.getState(id);
-            const asset = JSON.parse(assetBytes.toString());
-
-            // Check if the outlet mentioned in the transaction (user purchase) is from a registered outlet
-            const outletExists = await this.OutletExists(outlet);
-            if (!outletExists) {
-                throw new Error(`Outlet ${outlet} does not exist.`);
-            }
-
-            // Check if the asset belongs to the user
-            if (asset.Owner !== owner) {
-                throw new Error(
-                    `Asset with ID ${id} does not belong to user ${owner}.`
-                );
-            }
-
-            // Check if outlet mentioned in the transaction details and outlet verifying the given transaction are consistent
-            if (asset.Outlet !== outlet) {
-                throw new Error(
-                    `Outlet with ID ${outlet} is not the same as the one in the registered asset, which is ${asset.Outlet}.`
-                );
-            }
-
-            // Verify the asset
-            asset.Verified = "yes";
-
-            // Update the asset in the ledger
-            await ctx.stub.putState(id, Buffer.from(JSON.stringify(asset)));
-
-            return JSON.stringify(asset);
-        } catch (error) {
-            return `Error verifying purchase: ${error.message}`;
-        }
-    }
-
-    // RedeemReward function to first validate if a user is eligible for reward
-    // Call TransferReward to transfer a random listed reward to the user if eligible
-    async CheckEligibility(ctx, userID) {
-        try {
-            // Check if user is registered
-            const userExists = await this.UserExists(userID);
-            if (!userExists) {
-                throw new Error(`User ${userID} is not registered.`);
-            }
-
-            // Query string for finding assets for the user, ensuring the queried assets are verified purchases of 'juice'
-            const queryString = {
-                selector: {
-                    Owner: userID,
-                    Item: "juice",
-                    Verified: "yes",
-                },
-            };
-
-            // Query the assets based on the query string
-            const queryResults = await this.queryWithQueryString(
-                ctx,
-                JSON.stringify(queryString)
-            );
-            const assets = JSON.parse(queryResults);
-
-            // Sort the queried assets based on dates
-            assets.sort((a, b) => {
-                const dateAParts = a.Date.split("/").reverse().join("-");
-                const dateBParts = b.Date.split("/").reverse().join("-");
-                return new Date(dateAParts) - new Date(dateBParts);
-            });
-
-            // Check if user has 7 consecutive 'juice' purchases
-            let consecutiveCount = 0;
-            for (let i = 0; i < assets.length - 1; i++) {
-                const currentDateParts = assets[i].Date.split("/");
-                const nextDateParts = assets[i + 1].Date.split("/");
-
-                const currentDate = new Date(
-                    `${currentDateParts[2]}-${currentDateParts[1]}-${currentDateParts[0]}`
-                );
-                const nextDate = new Date(
-                    `${nextDateParts[2]}-${nextDateParts[1]}-${nextDateParts[0]}`
-                );
-
-                const timeDifference = Math.abs(nextDate - currentDate);
-                const daysDifference = Math.ceil(
-                    timeDifference / (1000 * 60 * 60 * 24)
-                );
-
-                if (daysDifference === 1) {
-                    consecutiveCount++;
-                } else {
-                    consecutiveCount = 0;
-                }
-                if (consecutiveCount === 6) {
-                    // User is eligible for reward
-
-                    // Generate a random index from the rewards array, which will contain those rewards as listed by a university
-                    const index = Math.floor(Math.random() * rewards.length);
-                    const reward = JSON.parse(rewards[index]);
-
-                    // Move claimed reward to claims array
-                    claims.push(reward);
-                    rewards = rewards.filter((_, i) => i !== index);
-
-                    return reward.ID;
-                }
-            }
-            return false;
-        } catch (error) {
-            return `Error checking eligiblity: ${error.message}`;
-        }
-    }
-
-    // Helper function to query assets based on a query string
-    async queryWithQueryString(ctx, queryString) {
-        const iterator = await ctx.stub.getQueryResult(queryString);
-        const results = [];
-        let result = await iterator.next();
-        while (!result.done) {
-            results.push(JSON.parse(result.value.value.toString("utf8")));
-            result = await iterator.next();
-        }
-        return JSON.stringify(results);
-    }
-
-    // TransferReward function to transfer reward to a user
-    // Called in redeemReward.js (client)
-    async TransferReward(ctx, userID, rewardID) {
-        try {
-            // Check if the user is registered
-            const userExists = await this.UserExists(userID);
-            if (!userExists) {
-                throw new Error(`User ${userID} is not registered.`);
-            }
-
-            // Check if the reward exists
-            const rewardExists = await this.AssetExists(ctx, rewardID);
-            if (!rewardExists) {
-                throw new Error(`Reward ${rewardID} does not exist.`);
-            }
-
-            // Get the reward from the ledger
-            const rewardAsBytes = await ctx.stub.getState(rewardID);
-            const reward = JSON.parse(rewardAsBytes.toString());
-
-            // Check if the reward is owned by a registered university
-            const universityExists = await this.UniversityExists(reward.Owner);
-            if (!universityExists) {
-                throw new Error(
-                    `The selected reward cannot be transferred as the owner ${reward.Owner} is not a registered university.`
-                );
-            }
-
-            // Update the owner of the reward to the user
-            reward.Owner = userID;
-
-            // Update the reward on the ledger
-            await ctx.stub.putState(
-                rewardID,
-                Buffer.from(JSON.stringify(reward))
-            );
-
-            return JSON.stringify(reward);
-        } catch (error) {
-            return `Error transferring reward: ${error.message}`;
-        }
-    }
-
-    // // OutletExists checks if outlet is already registered
-    // // called in RegisterUser function
-    // async OutletExists(outletID) {
-    //     // Check if the outlet is in outlets array
-    //     return outlets.outletID;
-    // }
-
-    /** 
-    // GetUserType Function to get the user type based on username
-    async GetUserType(ctx, username) {
-        try {
-            const studentExists = await this.StudentExists(username);
-            const donorExists = await this.DonorExists(username);
-
-            if (studentExists) {
-                const userType = "student";
-                return userType
-            } else if (donorExists) {
-                const userType = "donor";
-                return userType
-            } else {
-                console.log("Invalid username.");
-            }
-        } catch (error) {
-            return `Error in getting user type: ${error.message}`;
-        }
-    }
-    */
 }
 
 module.exports = DigiDonor;

@@ -127,16 +127,6 @@ app.post("/outletregistration", async (req, res) => {
     }
 });
 
-app.post("/generatetoken", async (req, res) => {
-    const { username, amount } = req.body;
-    try {
-        const generatedTokens = await generateToken(username, amount);
-        res.json({ generatedTokens });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
 app.post("/pledge", async (req, res) => {
     const { reqID, username, pledgeID, pledgedTokens } = req.body;
     // console.log(`reqID after being sent to server:`, reqID);
