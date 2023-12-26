@@ -7,8 +7,10 @@ import "../styles.css";
 function StudentHome() {
   var [loggedInUser, setLoggedInUser] = useState(null);
 
+  const [requestCreated, setRequestCreated] = useState(false);
+
   useEffect(() => {
-    const storedUser = localStorage.getItem("loggedInUsername");
+    const storedUser = localStorage.getItem("loggedInStudent");
     if (storedUser) {
       setLoggedInUser(JSON.parse(storedUser));
     }
@@ -22,7 +24,7 @@ function StudentHome() {
   });
 
   const generateRandomID = () => {
-    const randomID = "ID_" + Math.random().toString(36).substr(2, 9);
+    const randomID = "Req_" + Math.random().toString(36).substr(2, 9);
     document.getElementById("randomIDGen").value = randomID;
     setFormData({ reqID: randomID });
   };
@@ -58,6 +60,7 @@ function StudentHome() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const { reqID, amount, purpose, outlet } = formData;
     const username = loggedInUser; // note: don't JSON.stringify username, doesn't work for wallet querying I guess
 
@@ -70,6 +73,7 @@ function StudentHome() {
         outlet,
       });
       setMessage("Request raised successfully!");
+      setRequestCreated(true);
     } catch (error) {
       if (error.response) {
         // The request was made and the server responded with a status code
@@ -87,7 +91,7 @@ function StudentHome() {
 
   const handleLogout = async (e) => {
     e.preventDefault();
-    localStorage.removeItem("loggedInUsername");
+    localStorage.removeItem("loggedInStudent");
     navigate("/login");
   };
 
@@ -149,7 +153,6 @@ function StudentHome() {
                 <thead>
                   <tr>
                     <th scope="col">ID</th>
-                    <th scope="col">Recipient</th>
                     <th scope="col">Amount</th>
                     <th scope="col">Purpose</th>
                     <th scope="col">Outlet</th>
@@ -160,7 +163,6 @@ function StudentHome() {
                   {tableData.map((request) => (
                     <tr key={request.reqID}>
                       <td>{request.reqID}</td>
-                      <td>{request.recipient}</td>
                       <td>{request.amount}</td>
                       <td>{request.purpose}</td>
                       <td>{request.outlet}</td>
@@ -170,7 +172,7 @@ function StudentHome() {
                           <button
                             data-bs-toggle="modal"
                             data-bs-target="#redeemModal"
-                            className="btn btn-outline-success"
+                            className="btn btn-success"
                             onClick={() => handleRedeemClick(request)}
                           >
                             Redeem
@@ -232,7 +234,7 @@ function StudentHome() {
                         </button>
                         <Link
                           to={`/${redeemDetails.outlet}`}
-                          className="btn btn-primary"
+                          className="btn btn-success"
                         >
                           Go to Outlet Page
                         </Link>
@@ -411,9 +413,18 @@ function StudentHome() {
                     rows="3"
                   ></textarea>
                 </div>
-                <button class="btn btn-outline-success mb-1" type="submit">
+                <button class="btn btn-success mb-4" type="submit">
                   Create
                 </button>
+                {requestCreated && (
+                  <div>
+                    <p>
+                      Request created successfully with ID: {formData.reqID}.{" "}
+                      <br />
+                      Use the table to track your requests!
+                    </p>
+                  </div>
+                )}
               </form>
             </div>
             <br></br>

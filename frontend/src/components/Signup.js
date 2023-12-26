@@ -13,6 +13,8 @@ function Signup() {
 
   const [message, setMessage] = useState("");
 
+  const [username, setUsername] = useState("");
+
   const [isRegistered, setIsRegistered] = useState(false);
 
   const handleChange = (e) => {
@@ -24,6 +26,10 @@ function Signup() {
     e.preventDefault();
     const { firstName, lastName, password, userType } = formData;
 
+    const customUsername = firstName + lastName;
+    console.log(customUsername);
+    setUsername(customUsername);
+
     try {
       await axios.post("http://localhost:8080/signup", {
         firstName,
@@ -31,7 +37,7 @@ function Signup() {
         password,
         userType,
       });
-      setMessage("User registered successfully!");
+      setMessage(`Successfully registered! Login with username:`);
       setIsRegistered(true);
     } catch (error) {
       if (error.response) {
@@ -67,9 +73,9 @@ function Signup() {
         <div className="signup-form d-flex justify-content-center align-items-center">
           {isRegistered ? (
             <div className="text-center mt-3">
-              <p>{message}</p>
-              <Link to="/login" className="btn btn-primary">
-                Go to Login
+              <p>Successfully registered! Created username: {username}</p>
+              <Link to="/login" className="btn btn-success">
+                Login
               </Link>
             </div>
           ) : (
@@ -144,7 +150,7 @@ function Signup() {
                 </div>
                 <p className="text-end mt-2">
                   Already registered?{" "}
-                  <Link to="/" className="ms-2">
+                  <Link to="/login" className="ms-2">
                     Login
                   </Link>
                 </p>

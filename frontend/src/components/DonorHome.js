@@ -7,8 +7,10 @@ import "../styles.css";
 function DonorHome() {
   var [loggedInUser, setLoggedInUser] = useState(null);
 
+  const [donationPledged, setDonationPledged] = useState(false);
+
   useEffect(() => {
-    const storedUser = localStorage.getItem("loggedInUsername");
+    const storedUser = localStorage.getItem("loggedInDonor");
     const storedTokens = localStorage.getItem("tokens");
 
     if (storedUser) {
@@ -158,7 +160,7 @@ function DonorHome() {
   // console.log(`formdata:`, formData);
   const handleLogout = async (e) => {
     e.preventDefault();
-    localStorage.removeItem("loggedInUsername");
+    localStorage.removeItem("loggedInDonor");
     navigate("/login");
   };
 
@@ -170,10 +172,10 @@ function DonorHome() {
     pledgeID,
     pledgedTokens
   ) => {
-    console.log(`reqID when it's sending to server`, reqID); // works
-    console.log(`username when it's sending to server`, username); // works
-    console.log(`pledgeID when it's sending to server`, pledgeID); // works
-    console.log(`pledgedTokens when it's sending to server`, pledgedTokens); // works
+    // console.log(`reqID when it's sending to server`, reqID); // works
+    // console.log(`username when it's sending to server`, username); // works
+    // console.log(`pledgeID when it's sending to server`, pledgeID); // works
+    // console.log(`pledgedTokens when it's sending to server`, pledgedTokens); // works
     try {
       const response = await axios.post("http://localhost:8080/pledge", {
         // check if this works
@@ -183,6 +185,7 @@ function DonorHome() {
         pledgedTokens,
       });
       console.log("Pledge sent successfully:", response.data); // response.data = true/false
+      setDonationPledged(true);
     } catch (error) {
       console.error("Error sending pledge:", error);
     }
@@ -238,10 +241,10 @@ function DonorHome() {
           </span>
         )}
       </nav>
-      <div className="container mt-4">
+      <div className="container mt-5">
         <div>
           <span>
-            <h3 className="mb-5">Balance: {tokenBalance}</h3>
+            <h3 className="mb-4">Balance: {tokenBalance}</h3>
           </span>
         </div>
         <div>
@@ -250,7 +253,7 @@ function DonorHome() {
             get your tokens!
           </p>
           <form onSubmit={generateTokens}>
-            <div class="input-group mb-5 w-25">
+            <div class="input-group mb-4 w-25">
               <input
                 type="text"
                 id="donorAmount"
@@ -263,6 +266,15 @@ function DonorHome() {
                 Generate tokens
               </button>
             </div>
+            {donationPledged && (
+              <div className="mb-4">
+                <p>
+                  Donation pledged successfully, thank you for your
+                  contribution. <br />
+                  Use the table below to track your donations!
+                </p>
+              </div>
+            )}
           </form>
         </div>
         <div className="row">
@@ -307,7 +319,6 @@ function DonorHome() {
                     <th scope="col">ID</th>
                     <th scope="col">Amount</th>
                     <th scope="col">Purpose</th>
-                    <th scope="col">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -316,7 +327,6 @@ function DonorHome() {
                       <td>{request.reqID}</td>
                       <td>{request.amount}</td>
                       <td>{request.purpose}</td>
-                      <td>{request.status}</td>
                       <td className="hover-button">
                         <button
                           className="select-button"

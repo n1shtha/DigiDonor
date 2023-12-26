@@ -19,76 +19,6 @@ function Login() {
 
   const navigate = useNavigate();
 
-  /** 
-    const handleNavigation = async () => 
-    {
-
-      /** 
-      e.preventDefault();
-      console.log("Entered function");
-      const username = e.target.username.value
-      console.log(username);
-      
-
-      const username = usernameRef.current.value;
-      console.log(username);
-
-      try {
-
-        console.log("Entered try-catch block.");
-        await axios.post('http://localhost:8080/users', username);
-        setMessage(true);
-        console.log(message);
-
-      } catch (error) {
-        if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
-          setMessage(error.response.data.error);
-        } else if (error.request) {
-          // The request was made but no response was received
-          setMessage('No response received from the server');
-        } else {
-          // Something happened in setting up the request that triggered an Error
-          setMessage('An error occurred while setting up the request');
-        }
-      }
-
-      try {
-
-        console.log("Entered second try-catch block.");
-        if (message) {
-          const response = await axios.get('http://localhost:8080/users');
-          var userType = response.data;
-
-          if (userType === "student"){
-            navigate("/student");
-          } else if (userType === "donor") {
-            navigate("/donor");
-          } else {
-            navigate("/");
-          }
-        } else {
-          var userType = null;
-        }
-      } catch (error) {
-        if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
-          setMessage(error.response.data.error);
-        } else if (error.request) {
-          // The request was made but no response was received
-          setMessage('No response received from the server');
-        } else {
-          // Something happened in setting up the request that triggered an Error
-          setMessage('An error occurred while setting up the request');
-        }
-      }
-      
-    }
-    
-    */
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -107,14 +37,19 @@ function Login() {
       });
       setMessage("User logged in successfully!");
       setIsAuthenticated(true);
-      localStorage.setItem(
-        "loggedInUsername",
-        JSON.stringify(formData.username)
-      ); // storing username to localStorage so that it persists, [TO-DO]: i) check if user logged in earlier and ii) logout functionality
+      // storing username to localStorage so that it persists, [TO-DO]: i) check if user logged in earlier and ii) logout functionality
 
       if (userType === "student") {
+        localStorage.setItem(
+          "loggedInStudent",
+          JSON.stringify(formData.username)
+        );
         navigate("/student");
       } else if (userType === "donor") {
+        localStorage.setItem(
+          "loggedInDonor",
+          JSON.stringify(formData.username)
+        );
         navigate("/donor");
       } else {
         navigate("/");
