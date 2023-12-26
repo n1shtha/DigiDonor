@@ -329,7 +329,7 @@ function DonorHome() {
                       <td>{request.purpose}</td>
                       <td className="hover-button">
                         <button
-                          className="select-button"
+                          className="btn btn-success"
                           onClick={() =>
                             handleSelect(request.reqID, request.amount)
                           }
