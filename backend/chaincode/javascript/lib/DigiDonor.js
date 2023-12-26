@@ -47,6 +47,7 @@ class DigiDonor extends Contract {
                     recipient: "testuser",
                     amount: 100,
                     purpose: "meal",
+                    outlet: "rasananda",
                     donor: "",
                     pledgeID: "",
                     tokensPledged: [],
@@ -57,6 +58,7 @@ class DigiDonor extends Contract {
                     recipient: "testuser",
                     amount: 1000,
                     purpose: "stationary",
+                    outlet: "stationary",
                     donor: "",
                     pledgeID: "",
                     tokensPledged: [],
@@ -67,6 +69,7 @@ class DigiDonor extends Contract {
                     recipient: "testuser",
                     amount: 250,
                     purpose: "meal",
+                    outlet: "fuelzone",
                     donor: "",
                     pledgeID: "",
                     tokensPledged: [],
@@ -212,7 +215,7 @@ class DigiDonor extends Contract {
 
     // [DONE] RaiseRequest Function to create a donation request from a student
 
-    async RaiseRequest(ctx, reqID, username, amount, purpose) {
+    async RaiseRequest(ctx, reqID, username, amount, purpose, outlet) {
         try {
             // Create the request object
             const request = {
@@ -220,6 +223,7 @@ class DigiDonor extends Contract {
                 recipient: username,
                 amount: amount,
                 purpose: purpose,
+                outlet: outlet,
                 status: "open",
             };
 

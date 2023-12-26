@@ -18,7 +18,7 @@ const path = require("path");
 //     if (index === 3) userType = val; // 'user', 'university', or 'outlet'
 // });
 
-async function raiseRequest(reqID, username, amount, purpose) {
+async function raiseRequest(reqID, username, amount, purpose, outlet) {
     try {
         // load the network configuration
         const ccpPath = path.resolve(
@@ -71,7 +71,8 @@ async function raiseRequest(reqID, username, amount, purpose) {
             reqID,
             username,
             amount,
-            purpose
+            purpose,
+            outlet
         );
 
         if (raiseRequestResponse) {

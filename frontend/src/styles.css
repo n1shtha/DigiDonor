@@ -30,6 +30,19 @@
     display: inline-block; /* Display the button when the row is hovered over */
 }
 
+/** 
+.modal-content {
+    display: block!important;
+    position: fixed!important;
+    z-index: 1;
+}
+
+.modal {
+    display: block!important;
+    z-index: 1!important;
+}
+*/
+
 @media screen and (max-width: 1000px) {
     .form_container {
         width: 45%;

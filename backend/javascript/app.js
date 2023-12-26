@@ -101,9 +101,15 @@ app.post("/previousdonations", async (req, res) => {
 });
 
 app.post("/newrequest", async (req, res) => {
-    const { reqID, username, amount, purpose } = req.body;
+    const { reqID, username, amount, purpose, outlet } = req.body;
     try {
-        const newRequest = await raiseRequest(reqID, username, amount, purpose);
+        const newRequest = await raiseRequest(
+            reqID,
+            username,
+            amount,
+            purpose,
+            outlet
+        );
         // res.json({ success: true });
         res.json({ newRequest });
     } catch (error) {
@@ -149,10 +155,10 @@ app.post("/pledge", async (req, res) => {
 });
 
 app.post("/redeem", async (req, res) => {
-    const { pledgeID, item, username, outlet } = req.body;
+    const { pledgeID, username, item, outlet } = req.body;
 
     try {
-        const redeemResponse = await redeem(pledgeID, item, username, outlet);
+        const redeemResponse = await redeem(pledgeID, username, item, outlet);
         if (redeemResponse) {
             res.json({ success: true, message: redeemResponse });
         } else {
@@ -163,7 +169,7 @@ app.post("/redeem", async (req, res) => {
             );
         }
     } catch (error) {
-        res.status(500).send({ message: error.toString() });
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 

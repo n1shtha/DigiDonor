@@ -1,6 +1,6 @@
-import React, {useState}  from "react";
+import React, { useState } from "react";
 import axios from "axios";
-import { useParams, useNavigate} from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "../styles.css";
 
 function OutletPage() {
@@ -23,9 +23,14 @@ function OutletPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const { pledgeID, username, item } = formData;
+
     try {
-      const response = await axios.post("/redeem", {
-        ...formData,
+      const response = await axios.post("http://localhost:8080/redeem", {
+        pledgeID,
+        username,
+        item,
         outlet,
       });
       if (response.data.success) {
@@ -51,7 +56,7 @@ function OutletPage() {
   return (
     <div className="outlet template d-flex justify-content-center align-items-center vh-100 bg-light">
       <div className="jumbotron">
-        <h1 className="display-4">Welcome to {outlet}'s page !</h1>
+        <h1 className="display-4">Welcome to {outlet}'s page!</h1>
         <p class="lead">Secure and stress-free donation services</p>
         <hr class="my-4" />
         <p>Built using Hyperledger Fabric</p>
@@ -64,7 +69,7 @@ function OutletPage() {
             <label htmlFor="Pledge_ID">Pledge ID:</label>
             <input
               type="text"
-              name="Pledge_ID"
+              name="pledgeID"
               placeholder="Enter pledge ID"
               onChange={handleChange}
               defaultValue={formData.pledgeID}
@@ -97,7 +102,7 @@ function OutletPage() {
           </div>
 
           <div className="d-grid" type="submit">
-            <button type="redeem" className="btn btn-outline-success">
+            <button type="submit" className="btn btn-outline-success">
               Redeem
             </button>
           </div>

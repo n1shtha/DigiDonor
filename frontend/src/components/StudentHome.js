@@ -18,6 +18,7 @@ function StudentHome() {
     reqID: "",
     amount: 0,
     purpose: "",
+    outlet: "",
   });
 
   const generateRandomID = () => {
@@ -31,6 +32,8 @@ function StudentHome() {
   const [tableData, setTableData] = useState([]);
 
   const [redeemDetails, setRedeemDetails] = useState(null);
+
+  // const [toggleModalVisible, setToggleModalVisible] = useState("");
 
   const handleRedeemClick = (request) => {
     setRedeemDetails(request);
@@ -55,7 +58,7 @@ function StudentHome() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { reqID, amount, purpose } = formData;
+    const { reqID, amount, purpose, outlet } = formData;
     const username = loggedInUser; // note: don't JSON.stringify username, doesn't work for wallet querying I guess
 
     try {
@@ -64,6 +67,7 @@ function StudentHome() {
         username,
         amount,
         purpose,
+        outlet,
       });
       setMessage("Request raised successfully!");
     } catch (error) {
@@ -148,6 +152,7 @@ function StudentHome() {
                     <th scope="col">Recipient</th>
                     <th scope="col">Amount</th>
                     <th scope="col">Purpose</th>
+                    <th scope="col">Outlet</th>
                     <th scope="col">Status</th>
                   </tr>
                 </thead>
@@ -158,10 +163,13 @@ function StudentHome() {
                       <td>{request.recipient}</td>
                       <td>{request.amount}</td>
                       <td>{request.purpose}</td>
+                      <td>{request.outlet}</td>
                       <td>{request.status}</td>
                       <td>
                         {request.status === "pledged" && (
                           <button
+                            data-bs-toggle="modal"
+                            data-bs-target="#redeemModal"
                             className="btn btn-outline-success"
                             onClick={() => handleRedeemClick(request)}
                           >
@@ -181,29 +189,60 @@ function StudentHome() {
                 Fetch results
               </button>
             </div>
-          </div>
-
-          {redeemDetails && (
-            <div className="modal">
-              <div className="modal-content">
-                <span className="close" onClick={() => setRedeemDetails(null)}>
-                  &times;
-                </span>
-                <h2>Redeem Details</h2>
-                <p>Pledge ID: {redeemDetails.pledgeID}</p>
-                <button onClick={() => handleCopy(redeemDetails.pledgeID)}>
-                  Copy Pledge ID
-                </button>
-                <Link
-                  to={`/${redeemDetails.outlet}`}
-                  className="btn btn-primary"
+            <div>
+              {redeemDetails && (
+                <div
+                  class="modal modal-dialog d-block"
+                  id="redeemModal"
+                  tabIndex="-1"
+                  aria-labelledby="exampleModalLabel"
+                  aria-hidden="true"
+                  style={{ display: "visible!important" }}
                 >
-                  Go to Outlet Page
-                </Link>
-              </div>
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">
+                          Redeem the selected donation
+                        </h1>
+                        <button
+                          type="button"
+                          class="btn-close"
+                          data-bs-dismiss="modal"
+                          aria-label="Close"
+                        ></button>
+                      </div>
+                      <div class="modal-body">
+                        <p>Pledge ID: {redeemDetails.pledgeID}</p>
+                        <button
+                          className="btn btn-outline-info"
+                          onClick={() => handleCopy(redeemDetails.pledgeID)}
+                        >
+                          Copy Pledge ID
+                        </button>
+                      </div>
+                      <div class="modal-footer">
+                        <button
+                          type="button"
+                          class="btn btn-secondary"
+                          data-bs-dismiss="modal"
+                          onClick={() => setRedeemDetails(null)}
+                        >
+                          Close
+                        </button>
+                        <Link
+                          to={`/${redeemDetails.outlet}`}
+                          className="btn btn-primary"
+                        >
+                          Go to Outlet Page
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-
+          </div>
           <div className="col">
             <h4 className="m-2 text-center">Create new request</h4>
             <div className="form-container p-5 rounded bg-white">
@@ -225,121 +264,142 @@ function StudentHome() {
                     readOnly
                   />
                 </div>
-                <label htmlFor="amount" className="mt-4">
-                  Request amount:
-                </label>
-                <div className="form-check form-check-inline ms-3 mb-3">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="amount"
-                    id="100"
-                    value="100"
-                    defaultChecked={formData.amount === 100}
-                    onChange={handleChange}
-                  />
-                  <label className="form-check-label" htmlFor="100">
-                    100 INR
+                <div>
+                  <label htmlFor="amount" className="mt-4">
+                    Request amount:
                   </label>
+                  <div className="form-check form-check-inline ms-3 mb-3">
+                    <input
+                      className="form-check-input"
+                      type="radio"
+                      name="amount"
+                      id="100"
+                      value="100"
+                      defaultChecked={formData.amount === 100}
+                      onChange={handleChange}
+                    />
+                    <label className="form-check-label" htmlFor="100">
+                      100 INR
+                    </label>
+                  </div>
+                  <div className="form-check form-check-inline mb-3">
+                    <input
+                      className="form-check-input"
+                      type="radio"
+                      name="amount"
+                      id="250"
+                      value="250"
+                      defaultChecked={formData.amount === 250}
+                      onChange={handleChange}
+                    />
+                    <label className="form-check-label" htmlFor="250">
+                      250 INR
+                    </label>
+                  </div>
+                  <div className="form-check form-check-inline mb-3">
+                    <input
+                      className="form-check-input"
+                      type="radio"
+                      name="amount"
+                      id="500"
+                      value="500"
+                      defaultChecked={formData.amount === 500}
+                      onChange={handleChange}
+                    />
+                    <label className="form-check-label" htmlFor="500">
+                      500 INR
+                    </label>
+                  </div>
+                  <div className="form-check form-check-inline mb-3">
+                    <input
+                      className="form-check-input"
+                      type="radio"
+                      name="amount"
+                      id="1000"
+                      value="1000"
+                      defaultChecked={formData.amount === 1000}
+                      onChange={handleChange}
+                    />
+                    <label className="form-check-label" htmlFor="1000">
+                      1000 INR
+                    </label>
+                  </div>
                 </div>
-                <div className="form-check form-check-inline mb-3">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="amount"
-                    id="250"
-                    value="250"
-                    defaultChecked={formData.amount === 250}
-                    onChange={handleChange}
-                  />
-                  <label className="form-check-label" htmlFor="250">
-                    250 INR
-                  </label>
+                <div>
+                  <label htmlFor="type">Request type:</label>
+                  <div className="form-check form-check-inline ms-3 mb-3">
+                    <input
+                      className="form-check-input"
+                      type="radio"
+                      name="purpose"
+                      id="meal"
+                      value="meal"
+                      defaultChecked={formData.purpose === "meal"}
+                      onChange={handleChange}
+                    />
+                    <label className="form-check-label" htmlFor="meal">
+                      Meal
+                    </label>
+                  </div>
+                  <div className="form-check form-check-inline mb-3">
+                    <input
+                      className="form-check-input"
+                      type="radio"
+                      name="purpose"
+                      id="stationary"
+                      value="stationary"
+                      defaultChecked={formData.purpose === "stationary"}
+                      onChange={handleChange}
+                    />
+                    <label className="form-check-label" htmlFor="stationary">
+                      Stationary
+                    </label>
+                  </div>
+                  <div className="form-check form-check-inline mb-3">
+                    <input
+                      className="form-check-input"
+                      type="radio"
+                      name="purpose"
+                      id="books"
+                      value="books"
+                      defaultChecked={formData.purpose === "books"}
+                      onChange={handleChange}
+                    />
+                    <label className="form-check-label" htmlFor="books">
+                      Books
+                    </label>
+                  </div>
+                  <div className="form-check form-check-inline mb-3">
+                    <input
+                      className="form-check-input"
+                      type="radio"
+                      name="purpose"
+                      id="decoration"
+                      value="decoration"
+                      defaultChecked={formData.purpose === "decoration"}
+                      onChange={handleChange}
+                    />
+                    <label className="form-check-label" htmlFor="decoration">
+                      Decoration
+                    </label>
+                  </div>
                 </div>
-                <div className="form-check form-check-inline mb-3">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="amount"
-                    id="500"
-                    value="500"
-                    defaultChecked={formData.amount === 500}
+                <div className="mb-2">
+                  <label htmlFor="outlet">Outlet name:</label>
+                  <select
+                    name="outlet"
+                    value={formData.outlet}
                     onChange={handleChange}
-                  />
-                  <label className="form-check-label" htmlFor="500">
-                    500 INR
-                  </label>
-                </div>
-                <div className="form-check form-check-inline mb-3">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="amount"
-                    id="1000"
-                    value="1000"
-                    defaultChecked={formData.amount === 1000}
-                    onChange={handleChange}
-                  />
-                  <label className="form-check-label" htmlFor="1000">
-                    1000 INR
-                  </label>
-                </div>
-                <label htmlFor="type">Request type:</label>
-                <div className="form-check form-check-inline ms-3 mb-3">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="purpose"
-                    id="meal"
-                    value="meal"
-                    defaultChecked={formData.purpose === "meal"}
-                    onChange={handleChange}
-                  />
-                  <label className="form-check-label" htmlFor="meal">
-                    Meal
-                  </label>
-                </div>
-                <div className="form-check form-check-inline mb-3">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="purpose"
-                    id="stationary"
-                    value="stationary"
-                    defaultChecked={formData.purpose === "stationary"}
-                    onChange={handleChange}
-                  />
-                  <label className="form-check-label" htmlFor="stationary">
-                    Stationary
-                  </label>
-                </div>
-                <div className="form-check form-check-inline mb-3">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="purpose"
-                    id="books"
-                    value="books"
-                    defaultChecked={formData.purpose === "books"}
-                    onChange={handleChange}
-                  />
-                  <label className="form-check-label" htmlFor="books">
-                    Books
-                  </label>
-                </div>
-                <div className="form-check form-check-inline mb-3">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="purpose"
-                    id="decoration"
-                    value="decoration"
-                    defaultChecked={formData.purpose === "decoration"}
-                    onChange={handleChange}
-                  />
-                  <label className="form-check-label" htmlFor="decoration">
-                    Decoration
-                  </label>
+                    className="form-control"
+                  >
+                    <option value="">Select registered outlet</option>
+                    <option value="fuelzone">Fuelzone</option>
+                    <option value="rasananda">Rasananda</option>
+                    <option value="dhaba">Shudh Desi Dhaba</option>
+                    <option value="vowcafe">Vow Cafe</option>
+                    <option value="stationary">Stationary Shop</option>
+                    <option value="tuck">Tuck Shop</option>
+                  </select>
                 </div>
                 <div className="mb-3">
                   <label for="big-text" className="form-label">
@@ -355,19 +415,6 @@ function StudentHome() {
                   Create
                 </button>
               </form>
-            </div>
-            <h4 className="mt-4 mb-2 text-center">Redeem a token</h4>
-            <div className="form-container p-5 rounded bg-white">
-              <div class="input-group mb-1">
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Request ID"
-                />
-                <button class="btn btn-outline-success" type="button">
-                  Redeem
-                </button>
-              </div>
             </div>
             <br></br>
           </div>
