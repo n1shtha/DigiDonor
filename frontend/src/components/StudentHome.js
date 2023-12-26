@@ -182,26 +182,26 @@ function StudentHome() {
               </button>
             </div>
           </div>
-          
+
           {redeemDetails && (
-          <div className="modal">
-            <div className="modal-content">
-              <span
-                className="close"
-                onClick={() => setRedeemDetails(null)}
-              >
-                &times; 
-              </span>
-              <h2>Redeem Details</h2>
-              <p>Pledge ID: {redeemDetails.pledgeID}</p>
-              <button onClick={() => handleCopy(redeemDetails.pledgeID)}>
-                Copy Pledge ID
-              </button>
-              <Link to={`/${redeemDetails.outlet}`} className="btn btn-primary">
-                Go to Outlet Page
-              </Link>
+            <div className="modal">
+              <div className="modal-content">
+                <span className="close" onClick={() => setRedeemDetails(null)}>
+                  &times;
+                </span>
+                <h2>Redeem Details</h2>
+                <p>Pledge ID: {redeemDetails.pledgeID}</p>
+                <button onClick={() => handleCopy(redeemDetails.pledgeID)}>
+                  Copy Pledge ID
+                </button>
+                <Link
+                  to={`/${redeemDetails.outlet}`}
+                  className="btn btn-primary"
+                >
+                  Go to Outlet Page
+                </Link>
+              </div>
             </div>
-          </div>
           )}
 
           <div className="col">

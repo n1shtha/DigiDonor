@@ -176,8 +176,7 @@ class DigiDonor extends Contract {
             // Filter all requests with "status": "open" and "recipient" : username
             // Store resulting rewards in a user_requests array
             user_requests = allAssets.filter(
-                (asset) =>
-                    asset.status === "open" && asset.recipient === username // Q: students should be able to see both open and closed?
+                (asset) => asset.recipient === username // Q: students should be able to see both open and closed?
             );
             //.map((request) => JSON.stringify(request));
 

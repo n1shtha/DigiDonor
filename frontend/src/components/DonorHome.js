@@ -279,27 +279,14 @@ function DonorHome() {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
-                    <td>Open</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">2</th>
-                    <td>Jacob</td>
-                    <td>Thornton</td>
-                    <td>@fat</td>
-                    <td>Open</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">3</th>
-                    <td>hi</td>
-                    <td>test</td>
-                    <td>@twitter</td>
-                    <td>Open</td>
-                  </tr>
+                  {pastTableData.map((request) => (
+                    <tr key={request.reqID}>
+                      <td>{request.reqID}</td>
+                      <td>{request.amount}</td>
+                      <td>{request.purpose}</td>
+                      <td>{request.status}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
               <button
@@ -354,18 +341,13 @@ function DonorHome() {
             </div>
           </div>
           <div className="col">
-            <h4 className="mt-4 mb-2 text-center">Fund a request</h4>
-            <div className="form-container p-5 rounded bg-white">
-              <div class="input-group mb-1">
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Request ID"
-                />
-                <button class="btn btn-outline-success" type="button">
-                  Fund
-                </button>
-              </div>
+            <h4 className="mb-1 text-center">Tooltip:</h4>
+            <div className="form-container p-5 rounded bg-white ">
+              <p className="lead">
+                Hover near the end of the row with the request you would like to
+                fund or explore. You will then be able to select it to pledge
+                tokens to the request.
+              </p>
             </div>
             <br></br>
           </div>
