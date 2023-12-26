@@ -57,10 +57,20 @@ function OutletPage() {
     <div className="outlet template d-flex justify-content-center align-items-center vh-100 bg-light">
       <div className="jumbotron">
         <h1 className="display-4">Welcome to {outlet}'s page!</h1>
-        <p class="lead">Secure and stress-free donation services</p>
+        <p class="lead">Proud to be a DigiDonor registered outlet</p>
         <hr class="my-4" />
-        <p>Built using Hyperledger Fabric</p>
+        <div class="overflow-hidden">
+          <div class="container px-5">
+            <img
+              src={process.env.PUBLIC_URL + outlet + ".jpeg"}
+              class="img-fluid border rounded-3 shadow-lg mb-4"
+              alt="Ashoka image"
+              loading="lazy"
+            />
+          </div>
+        </div>
       </div>
+
       <div className="form_container p-5 rounded bg-white ms-4">
         <form onSubmit={handleSubmit}>
           <h3 className="text-center">Redeem token</h3>
@@ -102,7 +112,7 @@ function OutletPage() {
           </div>
 
           <div className="d-grid" type="submit">
-            <button type="submit" className="btn btn-outline-success">
+            <button type="submit" className="btn btn-success">
               Redeem
             </button>
           </div>

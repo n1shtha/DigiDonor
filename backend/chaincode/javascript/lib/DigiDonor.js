@@ -44,7 +44,7 @@ class DigiDonor extends Contract {
             const initialAssets = [
                 {
                     reqID: "Req_74e304adv",
-                    recipient: "testuser",
+                    recipient: "nishthadas",
                     amount: 100,
                     purpose: "meal",
                     outlet: "rasananda",
@@ -55,7 +55,7 @@ class DigiDonor extends Contract {
                 },
                 {
                     reqID: "Req_wkvfagesy",
-                    recipient: "testuser",
+                    recipient: "nishthadas",
                     amount: 1000,
                     purpose: "stationary",
                     outlet: "stationary",
@@ -66,7 +66,7 @@ class DigiDonor extends Contract {
                 },
                 {
                     reqID: "Req_n7iadfrme",
-                    recipient: "testuser",
+                    recipient: "nishthadas",
                     amount: 250,
                     purpose: "meal",
                     outlet: "fuelzone",

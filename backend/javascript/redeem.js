@@ -16,6 +16,7 @@ async function redeem(pledgeID, username, item, outlet) {
         __dirname,
         "..",
         "..",
+        "..",
         "test-network",
         "organizations",
         "peerOrganizations",

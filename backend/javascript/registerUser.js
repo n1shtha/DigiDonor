@@ -18,7 +18,7 @@ const path = require("path");
 //     if (index === 3) userType = val; // 'user', 'university', or 'outlet'
 // });
 
-async function registerUser(firstName, lastName, password, userType) {
+async function registerUser(username, password, userType) {
     try {
         // load the network configuration
         const ccpPath = path.resolve(
@@ -42,7 +42,7 @@ async function registerUser(firstName, lastName, password, userType) {
         const walletPath = path.join(process.cwd(), "wallet");
         const wallet = await Wallets.newFileSystemWallet(walletPath);
 
-        const username = (firstName + lastName).toLowerCase();
+        // const username = (firstName + lastName).toLowerCase();
 
         // Check to see if we've already enrolled the user.
         const userIdentity = await wallet.get(username);

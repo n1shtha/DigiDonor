@@ -36,9 +36,9 @@ app.get("/", async (req, res) => {
 });
 
 app.post("/signup", async (req, res) => {
-    const { firstName, lastName, password } = req.body;
+    const { username, password, userType } = req.body;
     try {
-        await registerUser(firstName, lastName, password);
+        await registerUser(username, password, userType);
         //await contract.submitTransaction('registerUser', username, password, userType);
         res.json({ success: true });
     } catch (error) {

@@ -26,14 +26,13 @@ function Signup() {
     e.preventDefault();
     const { firstName, lastName, password, userType } = formData;
 
-    const customUsername = firstName + lastName;
-    console.log(customUsername);
-    setUsername(customUsername);
+    const username = (firstName + lastName).toLowerCase();
+    console.log(username);
+    setUsername(username);
 
     try {
       await axios.post("http://localhost:8080/signup", {
-        firstName,
-        lastName,
+        username,
         password,
         userType,
       });
