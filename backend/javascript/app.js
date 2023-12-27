@@ -11,13 +11,15 @@ const loginUser = require("./loginUser.js");
 const getAllAssets = require("./getAllAssets.js");
 const browsePrevReq = require("./browsePrevReq.js");
 const raiseRequest = require("./raiseRequest.js");
+const generateToken = require("./generateToken.js");
+const listOpenRequests = require("./listOpenRequests.js");
+const browsePrevDon = require("./browsePrevDon.js");
+const genPledge = require("./pledgeGenerated.js");
+const redeem = require("./redeem.js");
 
 const app = express();
 app.use(cors());
 const PORT = 8080;
-
-// var jsonParser = bodyParser.json();
-// var textParser = app.use(bodyParser.text({ type: 'text/*' }));
 
 app.use(bodyParser.json());
 app.use(express.json());
@@ -31,9 +33,9 @@ app.get("/", async (req, res) => {
 });
 
 app.post("/signup", async (req, res) => {
-    const { firstName, lastName, password } = req.body;
+    const { username, password, userType } = req.body;
     try {
-        await registerUser(firstName, lastName, password);
+        await registerUser(username, password, userType);
         //await contract.submitTransaction('registerUser', username, password, userType);
         res.json({ success: true });
     } catch (error) {
@@ -46,12 +48,7 @@ app.post("/login", async (req, res) => {
     try {
         await loginUser(username, password, userType);
         //await contract.submitTransaction('registerUser', username, password, userType);
-
-        if (result) {
-            res.send({ message: "User registered successfully" });
-        } else {
-            res.status(409).send({ message: "User already exists" });
-        }
+        res.json({ success: true });
     } catch (error) {
         res.status(500).send({ message: error.toString() });
     }
@@ -79,10 +76,37 @@ app.post("/previousrequests", async (req, res) => {
     }
 });
 
-app.post("/newrequest", async (req, res) => {
-    const { reqID, username, amount, purpose } = req.body;
+app.post("/allopenrequests", async (req, res) => {
+    const { username } = req.body;
     try {
-        const newRequest = await raiseRequest(reqID, username, amount, purpose);
+        const allOpenRequestsData = await listOpenRequests(username);
+        res.json(JSON.parse(allOpenRequestsData));
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post("/previousdonations", async (req, res) => {
+    const { username } = req.body;
+    try {
+        const prevDonationsData = await browsePrevDon(username);
+        // console.log(JSON.parse(prevRequestsData)); Q: should we parse or not?
+        res.json(JSON.parse(prevDonationsData));
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post("/newrequest", async (req, res) => {
+    const { reqID, username, amount, purpose, outlet } = req.body;
+    try {
+        const newRequest = await raiseRequest(
+            reqID,
+            username,
+            amount,
+            purpose,
+            outlet
+        );
         // res.json({ success: true });
         res.json({ newRequest });
     } catch (error) {
@@ -99,29 +123,42 @@ app.post("/outletregistration", async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 });
-/** 
 
-app.get('/users', textParser, async (req, res) => {
-    console.log("Entered get request.");
-    var username = req.body;
-    console.log(username);
-    res.send("true");
-});
-
-app.post('/users', textParser, async (req, res) => {
-    console.log("Entered post request.");
-    var username = req.body;
-    console.log(username);
+app.post("/pledge", async (req, res) => {
+    const { reqID, username, pledgeID, pledgedTokens } = req.body;
+    // console.log(`reqID after being sent to server:`, reqID);
+    // console.log(`pledge after being sent to server:`, pledge); // this works we know
     try {
-        var userType = await getUserType(username);
-        console.log(userType);
-        res.json(userType);
+        const pledgeResponse = await genPledge(
+            reqID,
+            username,
+            pledgeID,
+            pledgedTokens
+        );
+        res.json(JSON.parse(pledgeResponse));
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
-*/
+app.post("/redeem", async (req, res) => {
+    const { pledgeID, username, item, outlet } = req.body;
+
+    try {
+        const redeemResponse = await redeem(pledgeID, username, item, outlet);
+        if (redeemResponse) {
+            res.json({ success: true, message: redeemResponse });
+        } else {
+            throw new Error(
+                `Error redeeming pledge with ID ${pledgeID}.${JSON.parse(
+                    redeemResponse
+                )}`
+            );
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

@@ -31,6 +31,9 @@ pushd ../../test-network
 ./network.sh deployCC -ccn DigiDonor -ccv 1 -cci initLedger -ccl ${CC_SRC_LANGUAGE} -ccp ${CC_SRC_PATH}
 popd
 
+cd javascript
+node enrollAdmin.js  
+
 cat <<EOF
 
 Total setup execution time : $(($(date +%s) - starttime)) secs ...

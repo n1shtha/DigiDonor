@@ -11,7 +11,7 @@ const FabricCAServices = require("fabric-ca-client");
 const fs = require("fs");
 const path = require("path");
 
-async function getUserType(username) {
+async function browsePrevDon(username) {
     try {
         // load the network configuration
         const ccpPath = path.resolve(
@@ -25,6 +25,7 @@ async function getUserType(username) {
             "org1.example.com",
             "connection-org1.json"
         );
+
         const ccp = JSON.parse(fs.readFileSync(ccpPath, "utf8"));
 
         // Create a new CA client for interacting with the CA.
@@ -33,13 +34,14 @@ async function getUserType(username) {
 
         // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), "wallet");
+        // console.log(walletPath);
         const wallet = await Wallets.newFileSystemWallet(walletPath);
 
         // Check to see if we've enrolled the user.
         const userIdentity = await wallet.get(username);
         if (!userIdentity) {
             console.log(
-                `An identity for the user ${username} does not exist in the wallet, please register first so that you can get the user type.`
+                `An identity for the user ${username} does not exist in the wallet, please register first so that you can get previous requests.`
             );
             return;
         }
@@ -59,27 +61,18 @@ async function getUserType(username) {
         const contract = network.getContract("DigiDonor");
 
         // Register the user such that it reflects in the chaincode
-        const getUserTypeResponse = await contract.evaluateTransaction("GetUserType", username);
-        console.log(getUserTypeResponse);
+        const getPrevDonResponse = await contract.evaluateTransaction(
+            "BrowsePrevDon",
+            username
+        );
 
-        if (getUserTypeResponse) {
-            console.log(
-                `Successfully got user type for ${username}.`
-            );
-
-            return getUserTypeResponse;
-
-        } else {
-            console.log(getUserTypeResponse.toString());
-        }
         // Disconnect from the gateway after executing registration
         await gateway.disconnect();
-
+        return getPrevDonResponse.toString();
     } catch (error) {
-        console.error(`Failed to get user type for ${username}: ${error}`);
+        console.error(`Failed to list all previous donations: ${error}`);
         process.exit(1);
     }
-} 
+}
 
-
-module.exports = getUserType;
+module.exports = browsePrevDon;

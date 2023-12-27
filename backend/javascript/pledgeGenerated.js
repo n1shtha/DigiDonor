@@ -11,14 +11,7 @@ const FabricCAServices = require("fabric-ca-client");
 const fs = require("fs");
 const path = require("path");
 
-// // modifying command line arguments allowed
-// let userID, userType;
-// process.argv.forEach(function (val, index, array) {
-//     if (index === 2) userID = val;
-//     if (index === 3) userType = val; // 'user', 'university', or 'outlet'
-// });
-
-async function raiseRequest(reqID, username, amount, purpose, outlet) {
+async function genPledge(reqID, username, pledgeID, pledgedTokens) {
     try {
         // load the network configuration
         const ccpPath = path.resolve(
@@ -66,26 +59,30 @@ async function raiseRequest(reqID, username, amount, purpose, outlet) {
         const contract = network.getContract("DigiDonor");
 
         // Register the user such that it reflects in the chaincode
-        const raiseRequestResponse = await contract.submitTransaction(
-            "RaiseRequest",
+        const pledgeResponse = await contract.submitTransaction(
+            "PledgeGenerated",
             reqID,
             username,
-            amount,
-            purpose,
-            outlet
+            pledgeID,
+            pledgedTokens
         );
 
-        if (raiseRequestResponse) {
-            console.log(`Successfully raised request ${reqID} by ${username}.`);
-        } else {
-            console.log(raiseRequestResponse.toString());
-        }
+        console.log(`pledgeresponse:`, pledgeResponse.toString());
+
         // Disconnect from the gateway after executing registration
         await gateway.disconnect();
+
+        if (pledgeResponse) {
+            console.log(`Successfully pledged the request ${pledgeID}.`);
+            return true;
+        } else {
+            console.log(pledgeResponse.toString());
+            return false;
+        }
     } catch (error) {
-        console.error(`Failed to raise request ${reqID}: ${error}`);
+        console.error(`Failed to pledge request ${reqID}: ${error}`);
         process.exit(1);
     }
 }
 
-module.exports = raiseRequest;
+module.exports = genPledge;
